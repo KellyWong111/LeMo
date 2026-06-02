@@ -1,0 +1,124 @@
+{
+  "settings": {
+    "num_eval": 50,
+    "num_samples": 150,
+    "cem_steps": 15,
+    "raw_topk": 10,
+    "eval_topk": 10,
+    "base_top": 3,
+    "restarts": 1,
+    "scales": "0.25",
+    "cal_lambda": 1.0,
+    "ridge": 10.0,
+    "seed": 42,
+    "outdir": "/data1/jingyixi/wm_runs/moda_only_learned_residual_proposal_20260530/confirm50_base3_scale025"
+  },
+  "rows": [
+    {
+      "split": "splitA_train42_44_val45_47",
+      "method": "raw_moda",
+      "lambda": 0.0,
+      "scale": 0.0,
+      "top1_success": 46.0,
+      "top3_success": 56.00000000000001,
+      "top5_success": 60.0,
+      "oracle": 60.0,
+      "success_density": 50.0,
+      "near_miss_count": 7
+    },
+    {
+      "split": "splitA_train42_44_val45_47",
+      "method": "residual_raw_cost",
+      "lambda": 1.0,
+      "scale": 0.25,
+      "top1_success": 46.0,
+      "top3_success": 56.00000000000001,
+      "top5_success": 60.0,
+      "oracle": 60.0,
+      "success_density": 49.4,
+      "near_miss_count": 7
+    },
+    {
+      "split": "splitA_train42_44_val45_47",
+      "method": "residual_calibrated_cost",
+      "lambda": 1.0,
+      "scale": 0.25,
+      "top1_success": 48.0,
+      "top3_success": 56.00000000000001,
+      "top5_success": 60.0,
+      "oracle": 60.0,
+      "success_density": 50.2,
+      "near_miss_count": 6
+    },
+    {
+      "split": "splitB_train45_47_val42_44",
+      "method": "raw_moda",
+      "lambda": 0.0,
+      "scale": 0.0,
+      "top1_success": 46.0,
+      "top3_success": 56.00000000000001,
+      "top5_success": 60.0,
+      "oracle": 60.0,
+      "success_density": 50.0,
+      "near_miss_count": 7
+    },
+    {
+      "split": "splitB_train45_47_val42_44",
+      "method": "residual_raw_cost",
+      "lambda": 1.0,
+      "scale": 0.25,
+      "top1_success": 46.0,
+      "top3_success": 56.00000000000001,
+      "top5_success": 60.0,
+      "oracle": 60.0,
+      "success_density": 50.0,
+      "near_miss_count": 7
+    },
+    {
+      "split": "splitB_train45_47_val42_44",
+      "method": "residual_calibrated_cost",
+      "lambda": 1.0,
+      "scale": 0.25,
+      "top1_success": 50.0,
+      "top3_success": 56.00000000000001,
+      "top5_success": 57.99999999999999,
+      "oracle": 60.0,
+      "success_density": 49.8,
+      "near_miss_count": 5
+    }
+  ],
+  "aggregate": [
+    {
+      "method": "raw_moda",
+      "scale": 0.0,
+      "top1_success": 46.0,
+      "oracle": 60.0,
+      "success_density": 50.0,
+      "near_miss_count": 14
+    },
+    {
+      "method": "residual_calibrated_cost",
+      "scale": 0.25,
+      "top1_success": 49.0,
+      "oracle": 60.0,
+      "success_density": 50.0,
+      "near_miss_count": 11
+    },
+    {
+      "method": "residual_raw_cost",
+      "scale": 0.25,
+      "top1_success": 46.0,
+      "oracle": 60.0,
+      "success_density": 49.7,
+      "near_miss_count": 14
+    }
+  ],
+  "best": {
+    "method": "residual_calibrated_cost",
+    "scale": 0.25,
+    "top1_success": 49.0,
+    "oracle": 60.0,
+    "success_density": 50.0,
+    "near_miss_count": 11
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "rows": [
+    {
+      "mode": "conservative_rank_preserve",
+      "fixed": "6",
+      "harmed": "0",
+      "net": "6",
+      "switches": "8",
+      "stateroll_only_recovered": "6",
+      "approx_top1": "82.0"
+    },
+    {
+      "mode": "detector_v2_gate_rank_preserve",
+      "fixed": "6",
+      "harmed": "0",
+      "net": "6",
+      "switches": "8",
+      "stateroll_only_recovered": "6",
+      "approx_top1": "82.0"
+    },
+    {
+      "mode": "selector_v3_balanced",
+      "fixed": "15",
+      "harmed": "2",
+      "net": "13",
+      "switches": "59",
+      "stateroll_only_recovered": "9",
+      "approx_top1": "83.16666666666667"
+    }
+  ]
+}

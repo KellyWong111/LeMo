@@ -1,0 +1,1262 @@
+{
+  "rows": [
+    {
+      "split": "splitA_train42_44_val45_47",
+      "threshold": -2.596773,
+      "candidate_topk": 1,
+      "fixed": 2,
+      "harmed": 0,
+      "net": 2,
+      "switches": 13,
+      "stateroll_only_recovered": 2,
+      "bsl_top1": 82.0,
+      "selector_top1": 82.66666666666667,
+      "gate_selected": 30,
+      "gate_rule": "fp_le_3_max30",
+      "selected_rows": [
+        {
+          "seed": 45,
+          "episode": 9,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": -0.578626919270559,
+          "best_success": false,
+          "best_rank": 4
+        },
+        {
+          "seed": 45,
+          "episode": 77,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 4.443244291363455,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 45,
+          "episode": 91,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.6163496561682857,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 45,
+          "episode": 96,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 1.1172247181672872,
+          "best_success": false,
+          "best_rank": 25
+        },
+        {
+          "seed": 46,
+          "episode": 19,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 1.2977085563533248,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 37,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 2.857122965777586,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 68,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.933523537709008,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 72,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 2.1271639826873723,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 75,
+          "bsl_success": true,
+          "stateroll_only_fixable": false,
+          "best_score": 0.27320461783811045,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 91,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.5368831071574518,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 47,
+          "episode": 6,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 3.885848568986256,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 47,
+          "episode": 91,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 1.911427232231723,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 47,
+          "episode": 93,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 2.7341783216521947,
+          "best_success": false,
+          "best_rank": 9
+        }
+      ],
+      "method": "agreement_bce_rank",
+      "harmed_budget": 0
+    },
+    {
+      "split": "splitA_train42_44_val45_47",
+      "threshold": -2.596773,
+      "candidate_topk": 1,
+      "fixed": 2,
+      "harmed": 0,
+      "net": 2,
+      "switches": 13,
+      "stateroll_only_recovered": 2,
+      "bsl_top1": 82.0,
+      "selector_top1": 82.66666666666667,
+      "gate_selected": 30,
+      "gate_rule": "fp_le_3_max30",
+      "selected_rows": [
+        {
+          "seed": 45,
+          "episode": 9,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": -0.578626919270559,
+          "best_success": false,
+          "best_rank": 4
+        },
+        {
+          "seed": 45,
+          "episode": 77,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 4.443244291363455,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 45,
+          "episode": 91,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.6163496561682857,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 45,
+          "episode": 96,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 1.1172247181672872,
+          "best_success": false,
+          "best_rank": 25
+        },
+        {
+          "seed": 46,
+          "episode": 19,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 1.2977085563533248,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 37,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 2.857122965777586,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 68,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.933523537709008,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 72,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 2.1271639826873723,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 75,
+          "bsl_success": true,
+          "stateroll_only_fixable": false,
+          "best_score": 0.27320461783811045,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 91,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.5368831071574518,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 47,
+          "episode": 6,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 3.885848568986256,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 47,
+          "episode": 91,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 1.911427232231723,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 47,
+          "episode": 93,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 2.7341783216521947,
+          "best_success": false,
+          "best_rank": 9
+        }
+      ],
+      "method": "agreement_bce_rank",
+      "harmed_budget": 1
+    },
+    {
+      "split": "splitA_train42_44_val45_47",
+      "threshold": -2.596773,
+      "candidate_topk": 1,
+      "fixed": 2,
+      "harmed": 0,
+      "net": 2,
+      "switches": 13,
+      "stateroll_only_recovered": 2,
+      "bsl_top1": 82.0,
+      "selector_top1": 82.66666666666667,
+      "gate_selected": 30,
+      "gate_rule": "fp_le_3_max30",
+      "selected_rows": [
+        {
+          "seed": 45,
+          "episode": 9,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": -0.578626919270559,
+          "best_success": false,
+          "best_rank": 4
+        },
+        {
+          "seed": 45,
+          "episode": 77,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 4.443244291363455,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 45,
+          "episode": 91,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.6163496561682857,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 45,
+          "episode": 96,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 1.1172247181672872,
+          "best_success": false,
+          "best_rank": 25
+        },
+        {
+          "seed": 46,
+          "episode": 19,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 1.2977085563533248,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 37,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 2.857122965777586,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 68,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.933523537709008,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 72,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 2.1271639826873723,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 75,
+          "bsl_success": true,
+          "stateroll_only_fixable": false,
+          "best_score": 0.27320461783811045,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 91,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.5368831071574518,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 47,
+          "episode": 6,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 3.885848568986256,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 47,
+          "episode": 91,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 1.911427232231723,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 47,
+          "episode": 93,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 2.7341783216521947,
+          "best_success": false,
+          "best_rank": 9
+        }
+      ],
+      "method": "agreement_bce_rank",
+      "harmed_budget": 2
+    },
+    {
+      "split": "splitA_train42_44_val45_47",
+      "threshold": -2.596773,
+      "candidate_topk": 1,
+      "fixed": 2,
+      "harmed": 0,
+      "net": 2,
+      "switches": 13,
+      "stateroll_only_recovered": 2,
+      "bsl_top1": 82.0,
+      "selector_top1": 82.66666666666667,
+      "gate_selected": 30,
+      "gate_rule": "fp_le_3_max30",
+      "selected_rows": [
+        {
+          "seed": 45,
+          "episode": 9,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": -0.578626919270559,
+          "best_success": false,
+          "best_rank": 4
+        },
+        {
+          "seed": 45,
+          "episode": 77,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 4.443244291363455,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 45,
+          "episode": 91,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.6163496561682857,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 45,
+          "episode": 96,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 1.1172247181672872,
+          "best_success": false,
+          "best_rank": 25
+        },
+        {
+          "seed": 46,
+          "episode": 19,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 1.2977085563533248,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 37,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 2.857122965777586,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 68,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.933523537709008,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 72,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 2.1271639826873723,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 75,
+          "bsl_success": true,
+          "stateroll_only_fixable": false,
+          "best_score": 0.27320461783811045,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 46,
+          "episode": 91,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.5368831071574518,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 47,
+          "episode": 6,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 3.885848568986256,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 47,
+          "episode": 91,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 1.911427232231723,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 47,
+          "episode": 93,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 2.7341783216521947,
+          "best_success": false,
+          "best_rank": 9
+        }
+      ],
+      "method": "agreement_bce_rank",
+      "harmed_budget": 3
+    },
+    {
+      "split": "splitB_train45_47_val42_44",
+      "threshold": -2.101803,
+      "candidate_topk": 1,
+      "fixed": 4,
+      "harmed": 0,
+      "net": 4,
+      "switches": 17,
+      "stateroll_only_recovered": 1,
+      "bsl_top1": 80.0,
+      "selector_top1": 81.33333333333333,
+      "gate_selected": 30,
+      "gate_rule": "fp_le_3_max30",
+      "selected_rows": [
+        {
+          "seed": 42,
+          "episode": 17,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.9461878828469502,
+          "best_success": false,
+          "best_rank": 1
+        },
+        {
+          "seed": 42,
+          "episode": 92,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": -0.2855189636882592,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 42,
+          "episode": 93,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.4715378574859066,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 16,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.16250844526632013,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 21,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": -1.0664490683818164,
+          "best_success": false,
+          "best_rank": 7
+        },
+        {
+          "seed": 43,
+          "episode": 34,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.8119141326448351,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 40,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.6018653492181479,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 89,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.1073699313611611,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 95,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.2846206980604318,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 2,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.6470126833190052,
+          "best_success": false,
+          "best_rank": 3
+        },
+        {
+          "seed": 44,
+          "episode": 3,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.8065974862547083,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 19,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.6316497360421358,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 40,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 2.3623155322157063,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 41,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.38895617762211404,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 67,
+          "bsl_success": true,
+          "stateroll_only_fixable": false,
+          "best_score": 1.806727374010875,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 74,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 2.6992261007393306,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 86,
+          "bsl_success": true,
+          "stateroll_only_fixable": false,
+          "best_score": 1.515413615848859,
+          "best_success": true,
+          "best_rank": 0
+        }
+      ],
+      "method": "agreement_bce_rank",
+      "harmed_budget": 0
+    },
+    {
+      "split": "splitB_train45_47_val42_44",
+      "threshold": -2.101803,
+      "candidate_topk": 1,
+      "fixed": 4,
+      "harmed": 0,
+      "net": 4,
+      "switches": 17,
+      "stateroll_only_recovered": 1,
+      "bsl_top1": 80.0,
+      "selector_top1": 81.33333333333333,
+      "gate_selected": 30,
+      "gate_rule": "fp_le_3_max30",
+      "selected_rows": [
+        {
+          "seed": 42,
+          "episode": 17,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.9461878828469502,
+          "best_success": false,
+          "best_rank": 1
+        },
+        {
+          "seed": 42,
+          "episode": 92,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": -0.2855189636882592,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 42,
+          "episode": 93,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.4715378574859066,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 16,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.16250844526632013,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 21,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": -1.0664490683818164,
+          "best_success": false,
+          "best_rank": 7
+        },
+        {
+          "seed": 43,
+          "episode": 34,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.8119141326448351,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 40,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.6018653492181479,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 89,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.1073699313611611,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 95,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.2846206980604318,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 2,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.6470126833190052,
+          "best_success": false,
+          "best_rank": 3
+        },
+        {
+          "seed": 44,
+          "episode": 3,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.8065974862547083,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 19,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.6316497360421358,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 40,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 2.3623155322157063,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 41,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.38895617762211404,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 67,
+          "bsl_success": true,
+          "stateroll_only_fixable": false,
+          "best_score": 1.806727374010875,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 74,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 2.6992261007393306,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 86,
+          "bsl_success": true,
+          "stateroll_only_fixable": false,
+          "best_score": 1.515413615848859,
+          "best_success": true,
+          "best_rank": 0
+        }
+      ],
+      "method": "agreement_bce_rank",
+      "harmed_budget": 1
+    },
+    {
+      "split": "splitB_train45_47_val42_44",
+      "threshold": -2.101803,
+      "candidate_topk": 1,
+      "fixed": 4,
+      "harmed": 0,
+      "net": 4,
+      "switches": 17,
+      "stateroll_only_recovered": 1,
+      "bsl_top1": 80.0,
+      "selector_top1": 81.33333333333333,
+      "gate_selected": 30,
+      "gate_rule": "fp_le_3_max30",
+      "selected_rows": [
+        {
+          "seed": 42,
+          "episode": 17,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.9461878828469502,
+          "best_success": false,
+          "best_rank": 1
+        },
+        {
+          "seed": 42,
+          "episode": 92,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": -0.2855189636882592,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 42,
+          "episode": 93,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.4715378574859066,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 16,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.16250844526632013,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 21,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": -1.0664490683818164,
+          "best_success": false,
+          "best_rank": 7
+        },
+        {
+          "seed": 43,
+          "episode": 34,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.8119141326448351,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 40,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.6018653492181479,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 89,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.1073699313611611,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 95,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.2846206980604318,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 2,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.6470126833190052,
+          "best_success": false,
+          "best_rank": 3
+        },
+        {
+          "seed": 44,
+          "episode": 3,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.8065974862547083,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 19,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.6316497360421358,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 40,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 2.3623155322157063,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 41,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.38895617762211404,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 67,
+          "bsl_success": true,
+          "stateroll_only_fixable": false,
+          "best_score": 1.806727374010875,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 74,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 2.6992261007393306,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 86,
+          "bsl_success": true,
+          "stateroll_only_fixable": false,
+          "best_score": 1.515413615848859,
+          "best_success": true,
+          "best_rank": 0
+        }
+      ],
+      "method": "agreement_bce_rank",
+      "harmed_budget": 2
+    },
+    {
+      "split": "splitB_train45_47_val42_44",
+      "threshold": -2.101803,
+      "candidate_topk": 1,
+      "fixed": 4,
+      "harmed": 0,
+      "net": 4,
+      "switches": 17,
+      "stateroll_only_recovered": 1,
+      "bsl_top1": 80.0,
+      "selector_top1": 81.33333333333333,
+      "gate_selected": 30,
+      "gate_rule": "fp_le_3_max30",
+      "selected_rows": [
+        {
+          "seed": 42,
+          "episode": 17,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.9461878828469502,
+          "best_success": false,
+          "best_rank": 1
+        },
+        {
+          "seed": 42,
+          "episode": 92,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": -0.2855189636882592,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 42,
+          "episode": 93,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.4715378574859066,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 16,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.16250844526632013,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 21,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": -1.0664490683818164,
+          "best_success": false,
+          "best_rank": 7
+        },
+        {
+          "seed": 43,
+          "episode": 34,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.8119141326448351,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 40,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.6018653492181479,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 89,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.1073699313611611,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 43,
+          "episode": 95,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.2846206980604318,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 2,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.6470126833190052,
+          "best_success": false,
+          "best_rank": 3
+        },
+        {
+          "seed": 44,
+          "episode": 3,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 1.8065974862547083,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 19,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.6316497360421358,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 40,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 2.3623155322157063,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 41,
+          "bsl_success": false,
+          "stateroll_only_fixable": false,
+          "best_score": 0.38895617762211404,
+          "best_success": false,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 67,
+          "bsl_success": true,
+          "stateroll_only_fixable": false,
+          "best_score": 1.806727374010875,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 74,
+          "bsl_success": false,
+          "stateroll_only_fixable": true,
+          "best_score": 2.6992261007393306,
+          "best_success": true,
+          "best_rank": 0
+        },
+        {
+          "seed": 44,
+          "episode": 86,
+          "bsl_success": true,
+          "stateroll_only_fixable": false,
+          "best_score": 1.515413615848859,
+          "best_success": true,
+          "best_rank": 0
+        }
+      ],
+      "method": "agreement_bce_rank",
+      "harmed_budget": 3
+    }
+  ],
+  "oof": [
+    {
+      "harmed_budget": 0,
+      "fixed": 6,
+      "harmed": 0,
+      "net": 6,
+      "switches": 30,
+      "stateroll_only_recovered": 3
+    },
+    {
+      "harmed_budget": 1,
+      "fixed": 6,
+      "harmed": 0,
+      "net": 6,
+      "switches": 30,
+      "stateroll_only_recovered": 3
+    },
+    {
+      "harmed_budget": 2,
+      "fixed": 6,
+      "harmed": 0,
+      "net": 6,
+      "switches": 30,
+      "stateroll_only_recovered": 3
+    },
+    {
+      "harmed_budget": 3,
+      "fixed": 6,
+      "harmed": 0,
+      "net": 6,
+      "switches": 30,
+      "stateroll_only_recovered": 3
+    }
+  ]
+}

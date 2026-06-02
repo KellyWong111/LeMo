@@ -1,0 +1,188 @@
+{
+  "settings": {
+    "num_eval": 4,
+    "num_samples": 80,
+    "cem_steps": 8,
+    "raw_topk": 5,
+    "eval_topk": 5,
+    "base_top": 2,
+    "restarts": 1,
+    "scales": "0.5,1.0",
+    "cal_lambda": 1.0,
+    "ridge": 10.0,
+    "seed": 42,
+    "outdir": "/data1/jingyixi/wm_runs/moda_only_learned_residual_proposal_20260530/smoke"
+  },
+  "rows": [
+    {
+      "split": "splitA_train42_44_val45_47",
+      "method": "raw_moda",
+      "lambda": 0.0,
+      "scale": 0.0,
+      "top1_success": 75.0,
+      "top3_success": 100.0,
+      "top5_success": 100.0,
+      "oracle": 100.0,
+      "success_density": 65.0,
+      "near_miss_count": 1
+    },
+    {
+      "split": "splitA_train42_44_val45_47",
+      "method": "residual_raw_cost",
+      "lambda": 1.0,
+      "scale": 0.5,
+      "top1_success": 75.0,
+      "top3_success": 100.0,
+      "top5_success": 100.0,
+      "oracle": 100.0,
+      "success_density": 65.0,
+      "near_miss_count": 1
+    },
+    {
+      "split": "splitA_train42_44_val45_47",
+      "method": "residual_calibrated_cost",
+      "lambda": 1.0,
+      "scale": 0.5,
+      "top1_success": 75.0,
+      "top3_success": 100.0,
+      "top5_success": 100.0,
+      "oracle": 100.0,
+      "success_density": 65.0,
+      "near_miss_count": 1
+    },
+    {
+      "split": "splitA_train42_44_val45_47",
+      "method": "residual_raw_cost",
+      "lambda": 1.0,
+      "scale": 1.0,
+      "top1_success": 75.0,
+      "top3_success": 100.0,
+      "top5_success": 100.0,
+      "oracle": 100.0,
+      "success_density": 65.0,
+      "near_miss_count": 1
+    },
+    {
+      "split": "splitA_train42_44_val45_47",
+      "method": "residual_calibrated_cost",
+      "lambda": 1.0,
+      "scale": 1.0,
+      "top1_success": 75.0,
+      "top3_success": 100.0,
+      "top5_success": 100.0,
+      "oracle": 100.0,
+      "success_density": 65.0,
+      "near_miss_count": 1
+    },
+    {
+      "split": "splitB_train45_47_val42_44",
+      "method": "raw_moda",
+      "lambda": 0.0,
+      "scale": 0.0,
+      "top1_success": 75.0,
+      "top3_success": 100.0,
+      "top5_success": 100.0,
+      "oracle": 100.0,
+      "success_density": 65.0,
+      "near_miss_count": 1
+    },
+    {
+      "split": "splitB_train45_47_val42_44",
+      "method": "residual_raw_cost",
+      "lambda": 1.0,
+      "scale": 0.5,
+      "top1_success": 75.0,
+      "top3_success": 75.0,
+      "top5_success": 100.0,
+      "oracle": 100.0,
+      "success_density": 65.0,
+      "near_miss_count": 1
+    },
+    {
+      "split": "splitB_train45_47_val42_44",
+      "method": "residual_calibrated_cost",
+      "lambda": 1.0,
+      "scale": 0.5,
+      "top1_success": 75.0,
+      "top3_success": 75.0,
+      "top5_success": 100.0,
+      "oracle": 100.0,
+      "success_density": 65.0,
+      "near_miss_count": 1
+    },
+    {
+      "split": "splitB_train45_47_val42_44",
+      "method": "residual_raw_cost",
+      "lambda": 1.0,
+      "scale": 1.0,
+      "top1_success": 75.0,
+      "top3_success": 100.0,
+      "top5_success": 100.0,
+      "oracle": 100.0,
+      "success_density": 65.0,
+      "near_miss_count": 1
+    },
+    {
+      "split": "splitB_train45_47_val42_44",
+      "method": "residual_calibrated_cost",
+      "lambda": 1.0,
+      "scale": 1.0,
+      "top1_success": 75.0,
+      "top3_success": 100.0,
+      "top5_success": 100.0,
+      "oracle": 100.0,
+      "success_density": 65.0,
+      "near_miss_count": 1
+    }
+  ],
+  "aggregate": [
+    {
+      "method": "raw_moda",
+      "scale": 0.0,
+      "top1_success": 75.0,
+      "oracle": 100.0,
+      "success_density": 65.0,
+      "near_miss_count": 2
+    },
+    {
+      "method": "residual_calibrated_cost",
+      "scale": 0.5,
+      "top1_success": 75.0,
+      "oracle": 100.0,
+      "success_density": 65.0,
+      "near_miss_count": 2
+    },
+    {
+      "method": "residual_calibrated_cost",
+      "scale": 1.0,
+      "top1_success": 75.0,
+      "oracle": 100.0,
+      "success_density": 65.0,
+      "near_miss_count": 2
+    },
+    {
+      "method": "residual_raw_cost",
+      "scale": 0.5,
+      "top1_success": 75.0,
+      "oracle": 100.0,
+      "success_density": 65.0,
+      "near_miss_count": 2
+    },
+    {
+      "method": "residual_raw_cost",
+      "scale": 1.0,
+      "top1_success": 75.0,
+      "oracle": 100.0,
+      "success_density": 65.0,
+      "near_miss_count": 2
+    }
+  ],
+  "best": {
+    "method": "raw_moda",
+    "scale": 0.0,
+    "top1_success": 75.0,
+    "oracle": 100.0,
+    "success_density": 65.0,
+    "near_miss_count": 2
+  }
+}

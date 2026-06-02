@@ -1,0 +1,8 @@
+source,gate_type,score_used,mode,top1,fixed,harmed,net,switches,stateroll_only_recovered,note
+strong_baseline_comparison,corrected conservative gate,rank_preserve_utility,conservative_harmed0,82.0,6,0,6,8,6,Canonical safe operating point; bsl is an evaluation reference.
+strong_baseline_comparison,detector-v2 gate,rank_preserve_utility,detector_v2_safe,82.0,6,0,6,8,6,Detector-v2 safe operating point using calibrated rank-preserve utility.
+strong_baseline_comparison,detector-v2 gate,localized raw MoDA cost,balanced_harmed2,83.16666666666667,15,2,13,59,9,"Balanced localized activation; this is deployment-level, not a global ranking metric."
+selector_v3_ablation,global raw MoDA cost,raw_cost,global_raw_cost,80.0,0,0,0,0,0,Global raw-cost override is an ablation; it does not support the method.
+selector_v3_ablation,fixed precision gate,raw_cost,fixed_precision_raw,81.66666666666667,6,2,4,17,6,Raw cost restricted by the older fixed gate.
+selector_v3_ablation,detector-v2 gate,localized raw MoDA cost,detector_v2_raw_balanced,83.16666666666667,15,2,13,59,9,"Key localized activation result: same raw cost, different operating regime."
+selector_v3_ablation,detector-v2 gate,BCE calibrated utility,detector_v2_bce,82.16666666666667,9,2,7,59,6,Global AUC-oriented utility inside detector-v2 gate.

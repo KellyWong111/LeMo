@@ -1,0 +1,4 @@
+mode,fixed,harmed,net,switches,stateroll_only_recovered,approx_top1
+conservative_rank_preserve,6,0,6,8,6,82.0
+detector_v2_gate_rank_preserve,6,0,6,8,6,82.0
+selector_v3_balanced,15,2,13,59,9,83.16666666666667

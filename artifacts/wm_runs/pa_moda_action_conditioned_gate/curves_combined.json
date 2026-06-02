@@ -1,0 +1,338 @@
+{
+  "combined_holdout_seed42": [
+    {
+      "epoch": 1,
+      "loss": 0.7728855013847351,
+      "pairs": 61,
+      "preserve": 179
+    },
+    {
+      "epoch": 100,
+      "loss": 0.7472794055938721,
+      "pairs": 61,
+      "preserve": 179
+    },
+    {
+      "epoch": 200,
+      "loss": 0.742587149143219,
+      "pairs": 61,
+      "preserve": 179
+    },
+    {
+      "epoch": 300,
+      "loss": 0.6824830174446106,
+      "pairs": 61,
+      "preserve": 179
+    },
+    {
+      "epoch": 400,
+      "loss": 0.6809688210487366,
+      "pairs": 61,
+      "preserve": 179
+    },
+    {
+      "epoch": 500,
+      "loss": 0.6684172749519348,
+      "pairs": 61,
+      "preserve": 179
+    },
+    {
+      "epoch": 600,
+      "loss": 0.6726812720298767,
+      "pairs": 61,
+      "preserve": 179
+    },
+    {
+      "epoch": 700,
+      "loss": 0.6981034278869629,
+      "pairs": 61,
+      "preserve": 179
+    },
+    {
+      "epoch": 800,
+      "loss": 0.6823095679283142,
+      "pairs": 61,
+      "preserve": 179
+    }
+  ],
+  "combined_holdout_seed43": [
+    {
+      "epoch": 1,
+      "loss": 0.7727428674697876,
+      "pairs": 57,
+      "preserve": 188
+    },
+    {
+      "epoch": 100,
+      "loss": 0.7468430399894714,
+      "pairs": 57,
+      "preserve": 188
+    },
+    {
+      "epoch": 200,
+      "loss": 0.7424356341362,
+      "pairs": 57,
+      "preserve": 188
+    },
+    {
+      "epoch": 300,
+      "loss": 0.7017292380332947,
+      "pairs": 57,
+      "preserve": 188
+    },
+    {
+      "epoch": 400,
+      "loss": 0.7086458206176758,
+      "pairs": 57,
+      "preserve": 188
+    },
+    {
+      "epoch": 500,
+      "loss": 0.6882156729698181,
+      "pairs": 57,
+      "preserve": 188
+    },
+    {
+      "epoch": 600,
+      "loss": 0.698746383190155,
+      "pairs": 57,
+      "preserve": 188
+    },
+    {
+      "epoch": 700,
+      "loss": 0.6838477849960327,
+      "pairs": 57,
+      "preserve": 188
+    },
+    {
+      "epoch": 800,
+      "loss": 0.6928985118865967,
+      "pairs": 57,
+      "preserve": 188
+    }
+  ],
+  "combined_holdout_seed44": [
+    {
+      "epoch": 1,
+      "loss": 0.7732458710670471,
+      "pairs": 64,
+      "preserve": 174
+    },
+    {
+      "epoch": 100,
+      "loss": 0.7461051940917969,
+      "pairs": 64,
+      "preserve": 174
+    },
+    {
+      "epoch": 200,
+      "loss": 0.7456495761871338,
+      "pairs": 64,
+      "preserve": 174
+    },
+    {
+      "epoch": 300,
+      "loss": 0.7014056444168091,
+      "pairs": 64,
+      "preserve": 174
+    },
+    {
+      "epoch": 400,
+      "loss": 0.6884866952896118,
+      "pairs": 64,
+      "preserve": 174
+    },
+    {
+      "epoch": 500,
+      "loss": 0.6823426485061646,
+      "pairs": 64,
+      "preserve": 174
+    },
+    {
+      "epoch": 600,
+      "loss": 0.6552792191505432,
+      "pairs": 64,
+      "preserve": 174
+    },
+    {
+      "epoch": 700,
+      "loss": 0.6792735457420349,
+      "pairs": 64,
+      "preserve": 174
+    },
+    {
+      "epoch": 800,
+      "loss": 0.6792522072792053,
+      "pairs": 64,
+      "preserve": 174
+    }
+  ],
+  "combined_holdout_seed45": [
+    {
+      "epoch": 1,
+      "loss": 0.7699786424636841,
+      "pairs": 58,
+      "preserve": 179
+    },
+    {
+      "epoch": 100,
+      "loss": 0.7465406060218811,
+      "pairs": 58,
+      "preserve": 179
+    },
+    {
+      "epoch": 200,
+      "loss": 0.7452760338783264,
+      "pairs": 58,
+      "preserve": 179
+    },
+    {
+      "epoch": 300,
+      "loss": 0.7004287242889404,
+      "pairs": 58,
+      "preserve": 179
+    },
+    {
+      "epoch": 400,
+      "loss": 0.6594700813293457,
+      "pairs": 58,
+      "preserve": 179
+    },
+    {
+      "epoch": 500,
+      "loss": 0.6734738945960999,
+      "pairs": 58,
+      "preserve": 179
+    },
+    {
+      "epoch": 600,
+      "loss": 0.6786714196205139,
+      "pairs": 58,
+      "preserve": 179
+    },
+    {
+      "epoch": 700,
+      "loss": 0.6819109916687012,
+      "pairs": 58,
+      "preserve": 179
+    },
+    {
+      "epoch": 800,
+      "loss": 0.6816778779029846,
+      "pairs": 58,
+      "preserve": 179
+    }
+  ],
+  "combined_holdout_seed46": [
+    {
+      "epoch": 1,
+      "loss": 0.7733421325683594,
+      "pairs": 68,
+      "preserve": 176
+    },
+    {
+      "epoch": 100,
+      "loss": 0.746424674987793,
+      "pairs": 68,
+      "preserve": 176
+    },
+    {
+      "epoch": 200,
+      "loss": 0.7463361024856567,
+      "pairs": 68,
+      "preserve": 176
+    },
+    {
+      "epoch": 300,
+      "loss": 0.6975422501564026,
+      "pairs": 68,
+      "preserve": 176
+    },
+    {
+      "epoch": 400,
+      "loss": 0.682131290435791,
+      "pairs": 68,
+      "preserve": 176
+    },
+    {
+      "epoch": 500,
+      "loss": 0.6800072193145752,
+      "pairs": 68,
+      "preserve": 176
+    },
+    {
+      "epoch": 600,
+      "loss": 0.6565163135528564,
+      "pairs": 68,
+      "preserve": 176
+    },
+    {
+      "epoch": 700,
+      "loss": 0.6994735598564148,
+      "pairs": 68,
+      "preserve": 176
+    },
+    {
+      "epoch": 800,
+      "loss": 0.6750199198722839,
+      "pairs": 68,
+      "preserve": 176
+    }
+  ],
+  "combined_holdout_seed47": [
+    {
+      "epoch": 1,
+      "loss": 0.774512529373169,
+      "pairs": 57,
+      "preserve": 184
+    },
+    {
+      "epoch": 100,
+      "loss": 0.7479386329650879,
+      "pairs": 57,
+      "preserve": 184
+    },
+    {
+      "epoch": 200,
+      "loss": 0.744640052318573,
+      "pairs": 57,
+      "preserve": 184
+    },
+    {
+      "epoch": 300,
+      "loss": 0.6665065884590149,
+      "pairs": 57,
+      "preserve": 184
+    },
+    {
+      "epoch": 400,
+      "loss": 0.6614168286323547,
+      "pairs": 57,
+      "preserve": 184
+    },
+    {
+      "epoch": 500,
+      "loss": 0.6436467170715332,
+      "pairs": 57,
+      "preserve": 184
+    },
+    {
+      "epoch": 600,
+      "loss": 0.6668621301651001,
+      "pairs": 57,
+      "preserve": 184
+    },
+    {
+      "epoch": 700,
+      "loss": 0.6625009179115295,
+      "pairs": 57,
+      "preserve": 184
+    },
+    {
+      "epoch": 800,
+      "loss": 0.6822832822799683,
+      "pairs": 57,
+      "preserve": 184
+    }
+  ]
+}

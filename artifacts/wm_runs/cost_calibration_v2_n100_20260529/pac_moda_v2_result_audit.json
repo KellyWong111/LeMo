@@ -1,0 +1,60 @@
+{
+  "status": "issues_found_corrected_report_written",
+  "audited_dirs": [
+    "/data1/jingyixi/wm_runs/pac_moda_v2_full_n100_20260529",
+    "/data1/jingyixi/wm_runs/cost_calibration_v2_n100_20260529",
+    "/data1/jingyixi/wm_runs/pac_moda_v2_budget_generalization_20260529"
+  ],
+  "corrected_dir": "/data1/jingyixi/wm_runs/pac_moda_v2_full_n100_corrected_20260529",
+  "checks": {
+    "episode_level_fixed_harmed_switches": {
+      "status": "pass",
+      "detail": "eval_final_selection groups by (seed, episode); selected_rows length equals switches and fixed/harmed are counted once per switched episode."
+    },
+    "loso_train_eval_separation": {
+      "status": "partial_pass_with_caveat",
+      "detail": "Held seed is excluded from training data and threshold selection. Fixed gate is reused from splitA/splitB precomputed gate rows, not learned from held labels in the LOSO run. Original legacy normalization used all feature rows and is deprecated; corrected run uses train-only normalization."
+    },
+    "calibrated_topk_nearmiss_order": {
+      "status": "pass",
+      "detail": "rank_metrics orders by np.argsort(-scores), and near_miss checks labels[order[0]], so calibrated top-k/near-miss use calibrated order."
+    },
+    "legacy_vs_full_definition": {
+      "status": "pass_with_required_caveat",
+      "detail": "legacy_rank_combined is ranking/listwise/preserve without BCE; full_bce_pairwise_listwise_preserve is BCE plus pairwise/listwise/preserve. They must not be merged in text."
+    },
+    "budget_feature_normalization": {
+      "status": "issue_found",
+      "detail": "Budget generalization uses the same feature definitions and train-only normalization in its legacy fitter. n50 has no matching fixed gate grid, so deployment comparison is unavailable. Earlier old full/cost_calibration_v2 ranking variants used all-X normalization and are deprecated for strict deployment claims."
+    }
+  },
+  "deprecated_numbers": {
+    "pac_moda_v2_full_n100_20260529 legacy_rank_combined": "deprecated due to all-X normalization leakage in fit_combined_ranker",
+    "cost_calibration_v2_n100_20260529 pairwise/listwise/combined": "deprecated for strict split claims due to all-X normalization in ranking fitters; BCE remains train-normalized"
+  },
+  "old_legacy_oof": {
+    "fixed": 6,
+    "harmed": 0,
+    "switches": 9,
+    "stateroll_only_recovered": 6
+  },
+  "corrected_legacy_oof": {
+    "fixed": 6,
+    "harmed": 0,
+    "switches": 8,
+    "stateroll_only_recovered": 6
+  },
+  "corrected_full_bce_pairwise_listwise_preserve_oof": {
+    "fixed": 3,
+    "harmed": 0,
+    "switches": 3,
+    "stateroll_only_recovered": 3
+  },
+  "corrected_loso_legacy": {
+    "fixed": 3,
+    "harmed": 0,
+    "switches": 8,
+    "stateroll_only_recovered": 3
+  },
+  "main_result_valid": "corrected legacy/rank-preserve PAC-MoDA v2 OOF fixed=6, harmed=0, switches=8, stateroll-only recovered=6"
+}

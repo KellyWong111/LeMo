@@ -1,0 +1,535 @@
+{
+  "rows": [
+    {
+      "seed": 45,
+      "episode": 7,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.19724757424794997,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 45,
+      "episode": 9,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": -0.6478037301358249,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 45,
+      "episode": 16,
+      "bsl_success": false,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.04978028083417115,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 45,
+      "episode": 40,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.1526375519108337,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 45,
+      "episode": 76,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": -0.38793199677109186,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 45,
+      "episode": 77,
+      "bsl_success": false,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.2970716173230331,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 45,
+      "episode": 87,
+      "bsl_success": false,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.3030276528099669,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 45,
+      "episode": 88,
+      "bsl_success": false,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.19475276959346954,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 45,
+      "episode": 89,
+      "bsl_success": false,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.3770365899209295,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 45,
+      "episode": 91,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.4160934034567222,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 45,
+      "episode": 96,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.2557252628956561,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 46,
+      "episode": 19,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.3567936145836827,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 46,
+      "episode": 28,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.388022636953262,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 46,
+      "episode": 31,
+      "bsl_success": false,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.07863955149797974,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 46,
+      "episode": 37,
+      "bsl_success": false,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.4110192521335595,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 46,
+      "episode": 42,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.061996539175921794,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 46,
+      "episode": 68,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.1800255858373353,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 46,
+      "episode": 72,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.2679504846474774,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 46,
+      "episode": 75,
+      "bsl_success": true,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.44143900901144206,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 46,
+      "episode": 89,
+      "bsl_success": true,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.4547390289169134,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 46,
+      "episode": 91,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.42765721417606267,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 47,
+      "episode": 2,
+      "bsl_success": true,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.3003410713146464,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 47,
+      "episode": 3,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.32428118574156073,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 47,
+      "episode": 6,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.37627572015450234,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 47,
+      "episode": 50,
+      "bsl_success": false,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.38304523527368844,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 47,
+      "episode": 79,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.3979965210043692,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 47,
+      "episode": 85,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.4202124499239602,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 47,
+      "episode": 88,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.1640186077291346,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 47,
+      "episode": 91,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.44595646735037486,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 47,
+      "episode": 93,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.0577677494650482,
+      "split": "splitA_train42_44_val45_47"
+    },
+    {
+      "seed": 42,
+      "episode": 17,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.26517150261172534,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 42,
+      "episode": 24,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.29896047372773943,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 42,
+      "episode": 51,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.3499311813994869,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 42,
+      "episode": 53,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.3738505822520679,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 42,
+      "episode": 58,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.1813624288558798,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 42,
+      "episode": 92,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.29103268758050976,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 42,
+      "episode": 93,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.2009693034100866,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 43,
+      "episode": 13,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": -0.6424363631054576,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 43,
+      "episode": 16,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.39169602782718493,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 43,
+      "episode": 21,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.05290537179788665,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 43,
+      "episode": 34,
+      "bsl_success": false,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.18043094770717372,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 43,
+      "episode": 40,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": -0.0943830908818734,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 43,
+      "episode": 46,
+      "bsl_success": false,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.4291042995809634,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 43,
+      "episode": 60,
+      "bsl_success": true,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.20272229582616474,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 43,
+      "episode": 63,
+      "bsl_success": false,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.14023076272089288,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 43,
+      "episode": 89,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.3443962824682241,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 43,
+      "episode": 95,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.15297745021623282,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 43,
+      "episode": 98,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.154223825890528,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 44,
+      "episode": 2,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.018842231266184038,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 44,
+      "episode": 3,
+      "bsl_success": false,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.3964452312312739,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 44,
+      "episode": 19,
+      "bsl_success": false,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.33069530413725307,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 44,
+      "episode": 26,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.37036870620158874,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 44,
+      "episode": 40,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.07984859695483543,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 44,
+      "episode": 41,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": 0.17988584150692388,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 44,
+      "episode": 67,
+      "bsl_success": true,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.299625610240775,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 44,
+      "episode": 74,
+      "bsl_success": false,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.36792884009400806,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 44,
+      "episode": 86,
+      "bsl_success": true,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.06633281515479227,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 44,
+      "episode": 88,
+      "bsl_success": false,
+      "best_success": false,
+      "best_rank": 0,
+      "score": -0.05562426662871457,
+      "split": "splitB_train45_47_val42_44"
+    },
+    {
+      "seed": 44,
+      "episode": 92,
+      "bsl_success": false,
+      "best_success": true,
+      "best_rank": 0,
+      "score": 0.2679679702287362,
+      "split": "splitB_train45_47_val42_44"
+    }
+  ]
+}

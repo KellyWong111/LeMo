@@ -1,0 +1,4 @@
+method,scale,top1_success,oracle,success_density,near_miss_count
+raw_moda,0.0,46.0,60.0,50.0,14
+residual_calibrated_cost,0.25,49.0,60.0,50.0,11
+residual_raw_cost,0.25,46.0,60.0,49.7,14

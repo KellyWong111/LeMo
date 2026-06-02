@@ -1,0 +1,60 @@
+{
+  "rows": [
+    {
+      "method": "raw_moda_stateroll_only",
+      "top1": 55.333333333333336,
+      "role": "MoDA-only direct planner baseline",
+      "fixed": "",
+      "harmed": "",
+      "net": ""
+    },
+    {
+      "method": "best_moda_only_top1::full_bce_pairwise_listwise_preserve",
+      "top1": 56.333333333333336,
+      "role": "Best direct MoDA-only calibrated planner by OOF top1",
+      "fixed": "",
+      "harmed": "",
+      "net": ""
+    },
+    {
+      "method": "best_moda_only_auc::bce_pairwise_listwise",
+      "top1": 56.00000000000001,
+      "role": "Best MoDA-only calibration by candidate AUC; may not maximize direct top1",
+      "fixed": "",
+      "harmed": "",
+      "net": ""
+    },
+    {
+      "method": "bsl",
+      "top1": 81.0,
+      "role": "Strong baseline reference only",
+      "fixed": "",
+      "harmed": "",
+      "net": ""
+    },
+    {
+      "method": "bsl_integrated_conservative_rank_preserve",
+      "top1": 82.0,
+      "role": "Secondary bsl-relative integration result",
+      "fixed": "6",
+      "harmed": "0",
+      "net": "6"
+    },
+    {
+      "method": "bsl_integrated_detector_v2_gate_rank_preserve",
+      "top1": 82.0,
+      "role": "Secondary bsl-relative integration result",
+      "fixed": "6",
+      "harmed": "0",
+      "net": "6"
+    },
+    {
+      "method": "bsl_integrated_selector_v3_balanced",
+      "top1": 83.16666666666667,
+      "role": "Secondary bsl-relative integration result",
+      "fixed": "15",
+      "harmed": "2",
+      "net": "13"
+    }
+  ]
+}

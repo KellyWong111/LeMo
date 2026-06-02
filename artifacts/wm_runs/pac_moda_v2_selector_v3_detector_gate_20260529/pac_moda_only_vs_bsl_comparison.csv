@@ -1,0 +1,8 @@
+method,top1,role,fixed,harmed,net
+raw_moda_stateroll_only,55.333333333333336,MoDA-only direct planner baseline,,,
+best_moda_only_top1::full_bce_pairwise_listwise_preserve,56.333333333333336,Best direct MoDA-only calibrated planner by OOF top1,,,
+best_moda_only_auc::bce_pairwise_listwise,56.00000000000001,Best MoDA-only calibration by candidate AUC; may not maximize direct top1,,,
+bsl,81.0,Strong baseline reference only,,,
+bsl_integrated_conservative_rank_preserve,82.0,Secondary bsl-relative integration result,6,0,6
+bsl_integrated_detector_v2_gate_rank_preserve,82.0,Secondary bsl-relative integration result,6,0,6
+bsl_integrated_selector_v3_balanced,83.16666666666667,Secondary bsl-relative integration result,15,2,13

@@ -1,0 +1,9 @@
+split,gate_rule,gate_model,gate_selected,gate_st_only,gate_bsl_fp,threshold,episodes,bsl_top1,calibrated_selector_top1,fixed,harmed,switches,stateroll_only_recovered,method,train_threshold_fixed,train_threshold_harmed,train_threshold_switches
+splitA_train42_44_val45_47,top10+st_gap_bottom20+AND,extratrees,9,6,3,0.860006,300,82.0,82.66666666666667,2,0,3,2,bce,0,3,15
+splitA_train42_44_val45_47,top10+st_gap_bottom20+AND,extratrees,9,6,3,1.770966,300,82.0,82.0,0,0,0,0,pairwise,1,3,15
+splitA_train42_44_val45_47,top10+st_gap_bottom20+AND,extratrees,9,6,3,0.704905,300,82.0,82.0,0,0,0,0,listwise,1,7,15
+splitA_train42_44_val45_47,top10+st_gap_bottom20+AND,extratrees,9,6,3,0.009538,300,82.0,83.33333333333334,4,0,5,4,combined,7,0,15
+splitB_train45_47_val42_44,top10+abs_gap_top10+AND,randomforest,8,3,4,0.845938,300,80.0,80.0,0,0,0,0,bce,2,1,15
+splitB_train45_47_val42_44,top10+abs_gap_top10+AND,randomforest,8,3,4,1.577872,300,80.0,80.0,0,0,0,0,pairwise,2,1,15
+splitB_train45_47_val42_44,top10+abs_gap_top10+AND,randomforest,8,3,4,0.419497,300,80.0,80.0,0,0,0,0,listwise,0,2,15
+splitB_train45_47_val42_44,top10+abs_gap_top10+AND,randomforest,8,3,4,-0.121678,300,80.0,80.66666666666666,2,0,4,2,combined,6,0,15

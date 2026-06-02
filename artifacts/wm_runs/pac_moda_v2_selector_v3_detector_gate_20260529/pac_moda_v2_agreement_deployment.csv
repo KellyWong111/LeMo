@@ -1,0 +1,13 @@
+split,threshold,candidate_topk,fixed,harmed,net,switches,stateroll_only_recovered,bsl_top1,selector_top1,gate_selected,gate_rule,method,harmed_budget
+splitA_train42_44_val45_47,-2.596773,1,2,0,2,13,2,82.0,82.66666666666667,30,fp_le_3_max30,agreement_bce_rank,0
+splitA_train42_44_val45_47,-2.596773,1,2,0,2,13,2,82.0,82.66666666666667,30,fp_le_3_max30,agreement_bce_rank,1
+splitA_train42_44_val45_47,-2.596773,1,2,0,2,13,2,82.0,82.66666666666667,30,fp_le_3_max30,agreement_bce_rank,2
+splitA_train42_44_val45_47,-2.596773,1,2,0,2,13,2,82.0,82.66666666666667,30,fp_le_3_max30,agreement_bce_rank,3
+splitB_train45_47_val42_44,-2.101803,1,4,0,4,17,1,80.0,81.33333333333333,30,fp_le_3_max30,agreement_bce_rank,0
+splitB_train45_47_val42_44,-2.101803,1,4,0,4,17,1,80.0,81.33333333333333,30,fp_le_3_max30,agreement_bce_rank,1
+splitB_train45_47_val42_44,-2.101803,1,4,0,4,17,1,80.0,81.33333333333333,30,fp_le_3_max30,agreement_bce_rank,2
+splitB_train45_47_val42_44,-2.101803,1,4,0,4,17,1,80.0,81.33333333333333,30,fp_le_3_max30,agreement_bce_rank,3
+,,,6,0,6,30,3,,,,,,0
+,,,6,0,6,30,3,,,,,,1
+,,,6,0,6,30,3,,,,,,2
+,,,6,0,6,30,3,,,,,,3

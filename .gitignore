@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 .DS_Store
+*.pid
 wandb/
 outputs/
 multirun/
@@ -9,7 +10,18 @@ multirun/
 # Avoid accidentally committing large artifact dumps.
 artifacts/wm_runs/**
 !artifacts/wm_runs/.gitkeep
+!artifacts/wm_runs/moda_only_learned_residual_proposal_20260530/
 !artifacts/wm_runs/moda_only_learned_residual_proposal_20260530/**
+!artifacts/wm_runs/pac_moda_v2_full_n100_corrected_20260529/
+!artifacts/wm_runs/pac_moda_v2_full_n100_corrected_20260529/**
+!artifacts/wm_runs/pac_moda_v2_selector_v3_detector_gate_20260529/
+!artifacts/wm_runs/pac_moda_v2_selector_v3_detector_gate_20260529/**
+!artifacts/wm_runs/cost_calibration_v2_n100_20260529/
+!artifacts/wm_runs/cost_calibration_v2_n100_20260529/**
+!artifacts/wm_runs/cost_calibration_head_n100_20260529/
+!artifacts/wm_runs/cost_calibration_head_n100_20260529/**
+!artifacts/wm_runs/pa_moda_action_conditioned_gate/
+!artifacts/wm_runs/pa_moda_action_conditioned_gate/**
 
 # Large local bundles
 lewm_migration_bundle/
