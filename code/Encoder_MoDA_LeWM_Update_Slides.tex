@@ -1,0 +1,273 @@
+\documentclass[aspectratio=169,11pt]{beamer}
+\usetheme{Madrid}
+\usecolortheme{seahorse}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+
+\title{LeWM 中 Encoder-side MoDA 的实验进展}
+\author{王怡静}
+\date{2026-04-24}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{这次汇报要回答什么}
+  这次只回答三个问题：
+  \begin{enumerate}
+    \item 为什么我们开始改 encoder，而不是继续只改 predictor？
+    \item encoder-side MoDA 到现在为止，结果到底是什么？
+    \item 为什么会出现 ``loss / MSE 下降，但 planning 不稳定'' 这种现象？
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{问题背景：为什么要改 encoder}
+  LeWM 的原始结构是：
+  \begin{itemize}
+    \item encoder: 图像 $\rightarrow$ latent
+    \item predictor: 64-layer conditional Transformer rollout latent dynamics
+    \item planner: CEM 在 latent cost 上选动作
+  \end{itemize}
+
+  原始担心是：
+  \begin{block}{Motivation}
+    如果 predictor 真正需要的不是 low-level feature 本身，而是一个适合规划的 representation，那么 low-/high-level information 的组织可能应该前移到 visual encoder。
+  \end{block}
+\end{frame}
+
+\begin{frame}{改动边界：这条线到底改了什么}
+  这次 encoder-side 线是严格控制变量的：
+  \begin{itemize}
+    \item 只改 visual encoder 的层间信息流；
+    \item predictor 保持原始 LeWM predictor；
+    \item planner / eval 接口保持不变；
+    \item planning 指标仍然是 PushT success rate（num\_eval=20）。
+  \end{itemize}
+
+  所以当前结果的含义是：
+  \begin{center}
+    \textbf{只看 encoder representation 组织方式的影响}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Encoder-side 实验线}
+  \small
+  \begin{tabular}{>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}p{7.4cm}}
+    \toprule
+    实验 & 含义 \\
+    \midrule
+    depth branch clean v2 & 保留原 ViT token self-attention，额外加跨层 depth branch \\
+    MoDA late10 bs32 & 12 层 encoder 中仅最后两层开启 depth retrieval \\
+    MoDA late8 bs32 & 比 late10 更早开启 retrieval，但不是 full-visible from layer1 \\
+    MoDA full-visible bs32 & 从 layer1 开始 full-visible depth retrieval \\
+    MoDA scale05 & 在 full-visible 上降低 attention scale \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{0.5em}
+  共同点：
+  \begin{itemize}
+    \item 都是 encoder 改动，不动 predictor；
+    \item full-visible / late8 / late10 走 official MoDA kernel 路线；
+    \item full-visible 因 OOM 只能用 bs32 + grad accumulation。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Encoder-side 结果：核心表}
+  \small
+  \begin{tabular}{rcccc}
+    \toprule
+    epoch & full-visible & scale05 & late8 & late10 \\
+    \midrule
+    1 & 20 & 10 & 40 & -- \\
+    2 & 85 & 30 & 75 & 80 \\
+    3 & 85 & 55 & 70 & 65 \\
+    4 & 95 & -- & 85 & 75 \\
+    5 & 85 & -- & 85 & 90 \\
+    6 & 70 & -- & 75 & 65 \\
+    7 & 85 & -- & -- & 80 \\
+    8 & 80 & -- & -- & 85 \\
+    9 & -- & -- & -- & 75 \\
+    10 & -- & -- & -- & 70 \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{0.6em}
+  第一结论：
+  \begin{itemize}
+    \item full-visible 不是没信号，ep4 可以到 95；
+    \item 但后面不是单调提升；
+    \item late8 / late10 也都有高点，但都不是稳定上升线。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Depth Branch 的位置}
+  \small
+  \begin{tabular}{rc}
+    \toprule
+    epoch & depth branch clean v2 \\
+    \midrule
+    18 & 90 \\
+    41 & 90 \\
+    57 & 80 \\
+    58 & 75 \\
+    70 & 80 \\
+    80 & 85 \\
+    90 & 80 \\
+    100 & 75 \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{0.7em}
+  第二结论：
+  \begin{itemize}
+    \item 把 low/high-level representation 的组织前移到 encoder 侧，本身不是错方向；
+    \item depth branch 能长期维持可用分数；
+    \item 但目前也没有形成持续高于强 baseline 的稳定优势。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{目前最重要的最新 planning 结果}
+  目前已确认的 full-visible 正常 CEM planning：
+  \begin{itemize}
+    \item ep1 = 20
+    \item ep2 = 85
+    \item ep3 = 85
+    \item ep4 = 95
+    \item ep5 = 85
+    \item ep6 = 70
+    \item ep7 = 85
+    \item ep8 = 80
+    \item ep14 = 70
+  \end{itemize}
+
+  \begin{block}{直接含义}
+    full-visible 的早期高点真实存在，但随着训练继续，至少到 ep14 并没有保持住。
+  \end{block}
+\end{frame}
+
+\begin{frame}{最新 planning 进度页}
+  当前正在补 full-visible 后期正常 CEM planning：
+  \begin{itemize}
+    \item GPU0: ep9
+    \item GPU1: ep10
+    \item GPU2: ep11
+    \item GPU3: ep12
+  \end{itemize}
+
+  \vspace{0.6em}
+  已完成：
+  \begin{itemize}
+    \item ep14 = 70
+  \end{itemize}
+
+  \vspace{0.6em}
+  因此当前最关键的 pending 问题是：
+  \begin{center}
+    \textbf{ep9--12 到底是继续回落，还是中间还有局部恢复？}
+  \end{center}
+\end{frame}
+
+\begin{frame}{工程现实：为什么一条线要跑很久}
+  full-visible encoder 的现实约束很强：
+  \begin{itemize}
+    \item bs128 会 OOM，只能用 bs32 + grad accumulation；
+    \item 所以单个 epoch 接近 10 小时量级；
+    \item planning eval 本身也慢，因为每一步都要做 world-model rollout。
+  \end{itemize}
+
+  \begin{block}{工程结论}
+    当前最大瓶颈是 encoder 训练，而不是 eval 接口本身。
+  \end{block}
+\end{frame}
+
+\begin{frame}{为什么会出现 ``loss 降了，但 planning 掉了''}
+  训练时优化的是 latent prediction error：
+  \[
+    L_{\text{train}}=\|\hat z_{t+1}-z_{t+1}\|^2
+  \]
+
+  planning 真正在乎的是候选动作的 goal cost 排序：
+  \[
+    J(u)=\|z_H(u)-z_{\text{goal}}\|^2
+  \]
+
+  关键差别是：
+  \begin{block}{关键点}
+    planning 不只关心 ``预测准不准''，更关心 ``动作好坏能不能被稳定排出来''。
+  \end{block}
+\end{frame}
+
+\begin{frame}{当前最合理的机制解释}
+  full-visible encoder 现在最像同时做了两件事：
+  \begin{enumerate}
+    \item 让 latent 更稳定、更容易被 predictor 拟合；
+    \item 但也可能把对控制最敏感的小差异抹平。
+  \end{enumerate}
+
+  于是会出现：
+  \begin{itemize}
+    \item pred loss / rollout MSE 下降；
+    \item 但不同 action candidate 的 cost gap 变小；
+    \item CEM 更难稳定选中好动作；
+    \item planning 在某些 checkpoint 上回落。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Diffusion Planner 的位置}
+  diffusion-style planner 已经接入 LeWM eval，并且可以端到端跑通。
+
+  当前已验证：
+  \begin{itemize}
+    \item full-visible ep4 + diffusion planner: 65
+    \item full-visible ep14 + normal CEM: 70
+  \end{itemize}
+
+  当前含义：
+  \begin{itemize}
+    \item 问题不在于 planner 接不进去；
+    \item 而是当前 learned planner 还没有优于原始 CEM；
+    \item 所以主叙事仍然应该放在 encoder representation 与 planning mismatch。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{目前能下的结论}
+  \textbf{已验证结论}
+  \begin{itemize}
+    \item encoder-side MoDA 可以稳定训练，不再是 autograd / cache bug；
+    \item full-visible 在早期确实能达到很强的 planning 高点；
+    \item 但当前没有形成稳定优于强 baseline 的后期曲线；
+    \item depth branch / late8 / late10 都说明 encoder 侧组织表征是有信号的。
+  \end{itemize}
+
+  \textbf{当前仍是工作假说}
+  \begin{itemize}
+    \item ``loss 降但 planning 掉'' 最可能来自 action ranking / cost margin 退化；
+    \item 还需要更直接的 probe 或 ranking-aware objective 才能把方法真正立住。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{下一步}
+  \begin{enumerate}
+    \item 先补齐 ep9--12 的正常 CEM planning 曲线；
+    \item 再做更直接的分析：rollout step-wise MSE 与 CEM margin；
+    \item 若继续做方法，优先尝试 planner-aware / ranking loss；
+    \item diffusion planner 线单独保留为 eval 加速 / planner 替代支线。
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{一句话总结}
+  \begin{block}{Current Position}
+    把 MoDA 式 depth retrieval 前移到 visual encoder 侧是有效信号，不是无效尝试；但当前更像是在增强 ``可预测性'' 的同时，部分破坏了 ``用于 planning 的排序结构''。所以这条线现在最重要的不是继续堆更多 variant，而是把 representation geometry 为什么开始不利于 planning 讲清楚。
+  \end{block}
+\end{frame}
+
+\end{document}

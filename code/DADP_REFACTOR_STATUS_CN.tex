@@ -1,0 +1,312 @@
+\documentclass[UTF8,a4paper,11pt]{ctexart}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=blue
+}
+
+\title{DADP 重构说明文档}
+\author{}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{文档目的}
+
+本文档用于总结当前 LeWM 相关代码的重构情况，重点说明四件事：
+
+\begin{itemize}[leftmargin=2em]
+  \item 这次具体做了什么；
+  \item 代码被改成了什么样；
+  \item 关键代码和实验脚本分别放在哪里；
+  \item 当前这条方法线的创新点与论文叙事价值是什么。
+\end{itemize}
+
+本次重构的核心目标，不是继续推进一个“把 MoDA 直接接到 LeWM 上看看能不能训起来”的弱叙事，而是将项目收敛为一条更适合顶会论文表达的方法线：
+
+\begin{quote}
+针对深层 world model predictor 中的 information dilution 问题，设计并验证一种 depth-augmented latent dynamics predictor。
+\end{quote}
+
+\section{这次到底做了什么}
+
+这次重构主要完成了四项工作。
+
+\subsection{1. 方法叙事重构}
+
+项目方向从原先的：
+
+\begin{itemize}[leftmargin=2em]
+  \item “把 MoDA 风格模块替换进 LeWM predictor，看训练是否有效”
+\end{itemize}
+
+转变为：
+
+\begin{itemize}[leftmargin=2em]
+  \item “研究并缓解深层 world model predictor 中的信息稀释问题”
+\end{itemize}
+
+因此，当前方法不再以“MoDA + LeWM”命名，而统一表述为：
+
+\begin{center}
+\textbf{Depth-Augmented Dynamics Predictor (DADP)}
+\end{center}
+
+\subsection{2. Predictor 代码重构}
+
+原先代码更接近“单一结构替换”，现在已经改成“可做系统消融的方法族”。
+
+新的 predictor 不再只有一种 MoDA 风格实现，而是支持以下多种融合形式：
+
+\begin{itemize}[leftmargin=2em]
+  \item \texttt{none}：不使用 depth memory，作为对照组；
+  \item \texttt{unified}：将时序证据与深度证据放入同一个 softmax 中统一归一化；
+  \item \texttt{additive}：时序注意力与深度注意力分别归一化，再相加；
+  \item \texttt{gated}：在 additive 的基础上引入可学习门控；
+  \item \texttt{residual}：将 depth memory 作为额外残差摘要注入。
+\end{itemize}
+
+这意味着当前代码已经具备“结构性 ablation”的条件，而不是单纯地比较两个大模型版本。
+
+\subsection{3. 训练入口重构}
+
+训练入口也被改写为更符合论文实验控制的形式。现在保持以下部分不变：
+
+\begin{itemize}[leftmargin=2em]
+  \item LeWM 的 encoder 不变；
+  \item LeWM 的 loss 不变；
+  \item planner / eval 接口不变；
+  \item 只替换 latent predictor。
+\end{itemize}
+
+这很重要，因为它使得后续实验更容易支撑如下论断：
+
+\begin{quote}
+如果性能有提升，那么增益主要来自 predictor 内部的信息流设计，而不是来自 encoder、loss 或整个系统的其他部分。
+\end{quote}
+
+\subsection{4. 快速验证能力增强}
+
+为了避免“每次改一个想法就要等十几个小时”，训练脚本增加了更稳健的 smoke test 支持。
+
+具体来说：
+
+\begin{itemize}[leftmargin=2em]
+  \item 当 \texttt{num\_workers=0} 时，会自动安全处理 dataloader 的 \texttt{prefetch\_factor}；
+  \item 现在可以用 1 epoch、少量 batch 做快速闭环验证；
+  \item 这使得弱想法能够被更快淘汰，强想法能够更早进入正式实验。
+\end{itemize}
+
+\section{代码具体改成了什么}
+
+\subsection{1. Predictor 的新定义}
+
+当前方法的核心不再是“深层只能看本层时间维度”，而是：
+
+\begin{quote}
+深层 predictor layer 在进行时序 latent rollout 时，可以直接访问浅层同位置的表征，从而在深层推理中保留对底层几何、边缘、接触线索的访问能力。
+\end{quote}
+
+从实现角度看，它依然保留 causal sequence attention，但额外加入了 shallow same-timestep depth retrieval。
+
+\subsection{2. 新增的控制参数}
+
+当前 predictor 除了支持多种 fusion mode，还支持以下实验控制参数：
+
+\begin{itemize}[leftmargin=2em]
+  \item \texttt{depth\_start\_layer}：从第几层开始允许访问 depth memory；
+  \item \texttt{max\_depth\_layers}：最多访问多少层浅层表征。
+\end{itemize}
+
+这两个参数对于后续论文里的核心 ablation 非常关键，因为它们可以直接支撑以下问题：
+
+\begin{itemize}[leftmargin=2em]
+  \item depth memory 应该从多浅的层开始接入？
+  \item 接入全部浅层更好，还是只接最近几层更好？
+\end{itemize}
+
+\subsection{3. 当前方法已经形成“方法族”}
+
+因此，现在的代码不是一个单独方法，而是一组围绕同一研究问题展开的 predictor 设计空间：
+
+\begin{center}
+\texttt{none / unified / additive / gated / residual}
+\end{center}
+
+这正是顶会方法论文更需要的形态：不是只展示一个设计，而是展示一个由问题驱动的方法空间与结构消融体系。
+
+\section{关键代码与文件位置}
+
+\subsection{1. 核心代码文件}
+
+\begin{itemize}[leftmargin=2em]
+  \item \texttt{/home/internship/wm\_transfer\_lab/LeWM\_src/le-wm-main/moda\_module.py}
+  \item \texttt{/home/internship/wm\_transfer\_lab/LeWM\_src/le-wm-main/train\_moda.py}
+\end{itemize}
+
+\subsection{2. 实验说明与启动脚本}
+
+\begin{itemize}[leftmargin=2em]
+  \item \texttt{/home/internship/wm\_transfer\_lab/LeWM\_src/le-wm-main/EXPERIMENTS\_DADP\_SIGNAL.md}
+  \item \texttt{/home/internship/wm\_transfer\_lab/LeWM\_src/le-wm-main/launch\_dadp\_signal.sh}
+  \item \texttt{/home/internship/wm\_transfer\_lab/LeWM\_src/le-wm-main/launch\_dadp\_stage2.sh}
+\end{itemize}
+
+\subsection{3. Baseline 与实验输出位置}
+
+\begin{itemize}[leftmargin=2em]
+  \item baseline checkpoint:
+  \texttt{/home/internship/wm\_transfer\_lab/lewm\_cache/pusht\_real\_3gpu\_b42/}
+  \item 当前 DADP 日志：
+  \texttt{/home/internship/wm\_transfer\_lab/lewm\_dadp\_none\_e5.log}
+  \item 阶段一总日志：
+  \texttt{/home/internship/wm\_transfer\_lab/dadp\_signal\_runner.log}
+  \item 阶段二排队日志：
+  \texttt{/home/internship/wm\_transfer\_lab/dadp\_signal\_stage2.log}
+\end{itemize}
+
+\section{为什么现在这条线比“MoDA + LeWM”强}
+
+原先那条线的问题在于，它更像是在说：
+
+\begin{itemize}[leftmargin=2em]
+  \item 我们把一个已有模块接进 LeWM；
+  \item 然后看看 loss 或 success rate 会不会提高。
+\end{itemize}
+
+这种叙事很容易被 reviewer 理解为：
+
+\begin{itemize}[leftmargin=2em]
+  \item 架构移植；
+  \item 技术拼装；
+  \item 缺少新的问题定义。
+\end{itemize}
+
+现在这条线更强，是因为它已经具备了完整的方法论文骨架：
+
+\begin{enumerate}[leftmargin=2em]
+  \item 明确的问题定义：深层 predictor 中存在 information dilution；
+  \item 明确的机制假说：planning 需要持续访问浅层几何与接触证据；
+  \item 明确的方法设计：depth-augmented predictor；
+  \item 明确的结构消融空间：多种 fusion mode 与 depth access 设计；
+  \item 明确的实验控制：encoder / loss / planner 不变，仅比较 predictor。
+\end{enumerate}
+
+\section{当前创新点}
+
+\subsection{1. 问题层面的创新}
+
+当前最重要的创新，不是“把 MoDA 用到了 world model”，而是提出了一个更贴近 world model planning 的问题：
+
+\begin{quote}
+深层 latent predictor 在长链条物理推演中，会逐渐稀释浅层几何和接触证据，从而影响 planning quality。
+\end{quote}
+
+这个问题定义本身就比“某个模块是否能加进去”更有论文价值。
+
+\subsection{2. 方法层面的创新}
+
+当前 predictor 的核心不是简单加深，而是让深层推理保留对浅层证据的直接访问能力。
+
+这在 world model 语境下尤其合理，因为：
+
+\begin{itemize}[leftmargin=2em]
+  \item 浅层更容易保留边缘、相对位置、接触几何等细节；
+  \item 深层更容易承载抽象的 rollout 逻辑；
+  \item planning 同时依赖二者，而不是只依赖最深层抽象。
+\end{itemize}
+
+\subsection{3. 实验层面的创新}
+
+当前代码已经直接支持以下实验：
+
+\begin{itemize}[leftmargin=2em]
+  \item \texttt{none} vs \texttt{unified}
+  \item \texttt{additive}
+  \item \texttt{gated}
+  \item \texttt{residual}
+  \item 后续可继续扩展 predictor depth ablation
+\end{itemize}
+
+这意味着当前不是“一个模型对一个模型”的粗比较，而是一个有结构、有控制变量、有层次关系的实验矩阵。
+
+\subsection{4. 系统控制层面的创新}
+
+当前改动只作用于 predictor 侧：
+
+\begin{itemize}[leftmargin=2em]
+  \item encoder 不变；
+  \item loss 不变；
+  \item planner 接口不变。
+\end{itemize}
+
+这样做的好处是论文更容易讲清楚：
+
+\begin{quote}
+改进来自 predictor 内的信息组织方式，而不是系统其余部分的大规模重调。
+\end{quote}
+
+\section{当前实验状态}
+
+当前在 \texttt{8card-6000ada} 上，GPU 5 已经被排满，实验顺序如下：
+
+\begin{enumerate}[leftmargin=2em]
+  \item \texttt{none}, 5 epochs
+  \item \texttt{unified}, 5 epochs
+  \item \texttt{additive}, 5 epochs
+  \item \texttt{gated}, 5 epochs
+\end{enumerate}
+
+这一阶段的目标不是直接冲最终 SOTA，而是快速判断：
+
+\begin{itemize}[leftmargin=2em]
+  \item 是否存在 early planning signal；
+  \item 哪种 fusion mode 最值得进入正式训练；
+  \item 是否值得继续做 predictor depth scaling ablation。
+\end{itemize}
+
+\section{推荐的论文表达}
+
+当前最推荐的 working name 是：
+
+\begin{center}
+\textbf{Depth-Augmented Dynamics Predictor (DADP)}
+\end{center}
+
+核心摘要逻辑建议写成：
+
+\begin{quote}
+world-model planning 的瓶颈，不仅来自模型容量不足，也来自深层 latent predictor 中的 information dilution。为此，我们提出一种 depth-augmented predictor，使深层 rollout 在保持时序因果建模的同时，仍可直接访问浅层几何证据。
+\end{quote}
+
+而 MoDA 的 credit 更适合写成：
+
+\begin{itemize}[leftmargin=2em]
+  \item MoDA 提供了 cross-layer retrieval 的灵感来源；
+  \item 但本文贡献不应表述为“把 MoDA 搬过来”，而应表述为“将跨层检索思想适配为 world model predictor 的问题驱动方法设计”。
+\end{itemize}
+
+\section{结论}
+
+截至目前，代码库已经不再服务于一个低价值的“MoDA 插件式改法”。
+它已经被重构为一条更像样的方法线：
+
+\begin{itemize}[leftmargin=2em]
+  \item 定义问题：information dilution in deep world model predictors；
+  \item 提出方法：Depth-Augmented Dynamics Predictor；
+  \item 组织实验：matched predictor-only ablations；
+  \item 验证目标：planning-oriented early signal 与后续 depth scaling 证据。
+\end{itemize}
+
+如果后续实验信号成立，这条线就有条件继续扩展为正式论文叙事；如果信号不强，也能快速止损，而不是继续在弱方向上消耗大量时间。
+
+\end{document}

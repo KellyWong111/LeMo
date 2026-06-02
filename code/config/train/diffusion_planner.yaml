@@ -1,0 +1,38 @@
+defaults:
+  - data: pusht
+  - _self_
+
+output_model_name: pusht_action_diffusion_planner
+subdir: pusht_action_diffusion_planner
+seed: 3072
+train_split: 0.95
+
+loader:
+  batch_size: 256
+  num_workers: 0
+
+trainer:
+  max_epochs: 50
+  grad_clip_norm: 1.0
+
+optimizer:
+  lr: 1e-4
+  weight_decay: 1e-4
+
+diffusion:
+  num_steps: 32
+
+planner:
+  horizon: 5
+  action_dim: 10
+  state_dim: 7
+  proprio_dim: 4
+
+data:
+  dataset:
+    num_steps: ${planner.horizon}
+
+model:
+  hidden_dim: 512
+  depth: 6
+  time_dim: 128

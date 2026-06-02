@@ -1,0 +1,11 @@
+_target_: diffusion_planner.DiffusionPlannerSolver
+model: ???
+batch_size: 1
+num_proposals: 32
+denoise_steps: 8
+noise_scale: 1.0
+proposal_std_decay: 0.75
+rerank_topk: 4
+device: "cuda"
+seed: ${seed}
+planner_ckpt: null

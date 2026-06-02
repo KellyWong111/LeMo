@@ -1,0 +1,24 @@
+defaults:
+  - lewm
+  - _self_
+
+output_model_name: lewm_encoder_depth_branch
+subdir: pusht_encoder_depth_branch
+
+wandb:
+  enabled: false
+
+predictor:
+  depth: 64
+  dropout: 0.0
+  emb_dropout: 0.0
+
+encoder_depth_branch:
+  use_depth_branch: true
+  depth_branch_heads: 3
+  depth_branch_dim_head: 64
+  depth_branch_dropout: 0.0
+  layer_start: 0
+  layer_end: null
+  include_final_layer: false
+  init_gate: 0.0

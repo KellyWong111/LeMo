@@ -1,0 +1,17 @@
+defaults:
+  - lewm
+  - _self_
+
+output_model_name: lewm_moda64_exact_drop0_late48_w8
+subdir: pusht_moda64_exact_drop0_late48_w8_5090_gpu2
+
+wandb:
+  enabled: false
+
+use_moda: true
+depth_start_layer: 48
+cache_window: 8
+
+predictor:
+  depth: 64
+  dropout: 0.0

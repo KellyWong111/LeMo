@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.DS_Store
+wandb/
+outputs/
+multirun/
+*.log
+
+# Avoid accidentally committing large artifact dumps.
+artifacts/wm_runs/**
+!artifacts/wm_runs/.gitkeep
+!artifacts/wm_runs/moda_only_learned_residual_proposal_20260530/**
+
+# Large local bundles
+lewm_migration_bundle/
+*.tar.gz
+*.zip

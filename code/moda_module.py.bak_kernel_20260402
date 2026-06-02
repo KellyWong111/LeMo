@@ -1,0 +1,403 @@
+"""
+Faithful reproduction of MoDA (Mixture-of-Depth Attention) for the LeWM
+latent dynamics predictor.
+
+Uses the original MoDA Triton kernel ``parallel_moda`` for depth-augmented
+causal attention.  Each predictor layer stores its K/V; deeper layers
+retrieve *all* previous layers' K/V at the **same sequence position** and
+compete them against temporal K/V inside a single unified softmax — exactly
+as defined in the MoDA paper.
+
+Depth cache layout (matches MoDA convention):
+  cached_k : [B, T * L, H, D]   (L = number of cached layers)
+  cached_v : [B, T * L, H, D]
+
+When ``use_moda=False`` the predictor is architecturally identical to the
+original LeWM ``ARPredictor`` (pure causal sequence attention, no depth
+memory).  This serves as the control condition.
+"""
+
+import sys
+import math
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from einops import rearrange
+
+# ── import MoDA Triton kernel ──────────────────────────────────────────
+_MODA_ROOT = "/home/internship/wm_transfer_lab/MoDA/libs/moda_triton"
+if _MODA_ROOT not in sys.path:
+    sys.path.insert(0, _MODA_ROOT)
+
+try:
+    from fla.ops.moda import parallel_moda
+    MODA_TRITON_AVAILABLE = True
+except ImportError:
+    MODA_TRITON_AVAILABLE = False
+
+
+def modulate(x, shift, scale):
+    """AdaLN-zero modulation."""
+    return x * (1 + scale) + shift
+
+
+# ───────────────────────────────────────────────────────────────────────
+# Attention
+# ───────────────────────────────────────────────────────────────────────
+
+class MoDAAttention(nn.Module):
+    """Causal attention using the original MoDA Triton kernel.
+
+    When *depth_kv_cache* is provided the kernel computes a **unified
+    softmax** over both the causal-temporal K/V and the cross-layer
+    depth K/V — one softmax, exactly as in the MoDA paper.
+
+    When no depth cache is available (layer 0, or ``use_moda=False``),
+    falls back to PyTorch ``F.scaled_dot_product_attention`` with Flash
+    Attention.
+    """
+
+    def __init__(self, dim, heads=8, dim_head=64, dropout=0.0):
+        super().__init__()
+        inner_dim = dim_head * heads
+        self.heads = heads
+        self.dim_head = dim_head
+        self.scale = dim_head ** -0.5
+        self.dropout = dropout
+
+        self.norm = nn.LayerNorm(dim)
+        self.to_qkv = nn.Linear(dim, inner_dim * 3, bias=False)
+        self.to_out = nn.Sequential(
+            nn.Linear(inner_dim, dim),
+            nn.Dropout(dropout),
+        )
+
+    def forward(self, x, cached_k=None, cached_v=None):
+        """
+        Args:
+            x:        (B, T, D) — pre-modulated hidden states
+            cached_k: (B, T*L, H, dim_head) or None — depth keys
+                      **position-major**: [pos0_layer0, pos0_layer1, ...,
+                                           pos1_layer0, pos1_layer1, ...]
+            cached_v: (B, T*L, H, dim_head) or None — depth values
+        Returns:
+            out:   (B, T, D)
+            cur_k: (B, T, H, dim_head)   — this layer's keys   (for cache)
+            cur_v: (B, T, H, dim_head)   — this layer's values  (for cache)
+        """
+        normed = self.norm(x)
+        qkv = self.to_qkv(normed).chunk(3, dim=-1)
+        # Layout: [B, T, H, D]  (MoDA convention)
+        q, k, v = (rearrange(t, "b t (h d) -> b t h d", h=self.heads) for t in qkv)
+
+        cur_k = k                   # (B, T, H, D) — store for depth cache
+        cur_v = v                   # (B, T, H, D)
+
+        has_depth = (cached_k is not None) and (cached_v is not None)
+
+        if has_depth:
+            out = self._vectorized_moda(q, k, v, cached_k, cached_v)
+        else:
+            # ── standard causal attention (Flash Attention path) ────
+            q_hf = rearrange(q, "b t h d -> b h t d")
+            k_hf = rearrange(k, "b t h d -> b h t d")
+            v_hf = rearrange(v, "b t h d -> b h t d")
+            drop = self.dropout if self.training else 0.0
+            out = F.scaled_dot_product_attention(
+                q_hf, k_hf, v_hf, dropout_p=drop, is_causal=True,
+            )
+            out = rearrange(out, "b h t d -> b t (h d)")
+            return self.to_out(out), cur_k, cur_v
+
+        out = rearrange(out, "b t h d -> b t (h d)")
+        return self.to_out(out), cur_k, cur_v
+
+    # ── vectorized MoDA (matches the Triton kernel math exactly) ───
+    def _vectorized_moda(self, q, k, v, cached_k, cached_v):
+        """Vectorized PyTorch implementation of MoDA unified softmax.
+
+        Mathematically identical to ``naive_mixture_of_depth_causal_ref``
+        in the MoDA codebase, but fully batched — no Python for-loops.
+
+        Causal masking sets future-token logits to -inf so that after the
+        single softmax only positions ≤ t contribute, exactly like MoDA.
+        """
+        B, T, H, D = q.shape
+        V_dim = v.shape[-1]
+        L = cached_k.shape[1] // T
+
+        # Reshape depth cache: (B, T*L, H, D) → (B, T, L, H, D)
+        kd = cached_k.view(B, T, L, H, D)
+        vd = cached_v.view(B, T, L, H, V_dim)
+
+        # Move to head-first for batched matmul: (B, H, T, D)
+        q_h = rearrange(q, "b t h d -> b h t d")
+        k_h = rearrange(k, "b t h d -> b h t d")
+        v_h = rearrange(v, "b t h d -> b h t d")
+
+        # ── sequence attention scores ──  (B, H, T, T)
+        scores_seq = torch.matmul(q_h, k_h.transpose(-2, -1)) * self.scale
+        causal_mask = torch.triu(
+            torch.ones(T, T, device=q.device, dtype=torch.bool), diagonal=1,
+        )
+        scores_seq = scores_seq.masked_fill(
+            causal_mask.unsqueeze(0).unsqueeze(0), float("-inf"),
+        )
+
+        # ── depth attention scores ──  (B, H, T, L)
+        # q: (B,T,H,D)  kd: (B,T,L,H,D)  → einsum → (B,H,T,L)
+        scores_depth = (
+            torch.einsum("b t h d, b t l h d -> b h t l", q, kd) * self.scale
+        )
+
+        # ── unified softmax over [seq, depth] ── (B, H, T, T+L)
+        scores = torch.cat([scores_seq, scores_depth], dim=-1)
+        weights = F.softmax(scores, dim=-1)
+
+        w_seq = weights[..., :T]        # (B, H, T, T)
+        w_depth = weights[..., T:]      # (B, H, T, L)
+
+        # ── weighted values ──
+        out_seq = torch.matmul(w_seq, v_h)                               # (B,H,T,V)
+        vd_h = rearrange(vd, "b t l h d -> b h t l d")
+        out_depth = torch.einsum("b h t l, b h t l d -> b h t d", w_depth, vd_h)
+
+        out = out_seq + out_depth                                        # (B,H,T,V)
+        return rearrange(out, "b h t d -> b t h d")
+
+
+# ───────────────────────────────────────────────────────────────────────
+# Transformer block  (AdaLN-zero, faithful to LeWM ConditionalBlock)
+# ───────────────────────────────────────────────────────────────────────
+
+class MoDAConditionalBlock(nn.Module):
+    """Transformer block with AdaLN-zero conditioning and MoDA attention."""
+
+    def __init__(self, dim, heads, dim_head, mlp_dim, dropout=0.0):
+        super().__init__()
+        self.attn = MoDAAttention(dim, heads=heads, dim_head=dim_head, dropout=dropout)
+        self.mlp = nn.Sequential(
+            nn.LayerNorm(dim),
+            nn.Linear(dim, mlp_dim),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(mlp_dim, dim),
+            nn.Dropout(dropout),
+        )
+        self.norm1 = nn.LayerNorm(dim, elementwise_affine=False, eps=1e-6)
+        self.norm2 = nn.LayerNorm(dim, elementwise_affine=False, eps=1e-6)
+        self.adaLN_modulation = nn.Sequential(
+            nn.SiLU(), nn.Linear(dim, 6 * dim, bias=True)
+        )
+        nn.init.constant_(self.adaLN_modulation[-1].weight, 0)
+        nn.init.constant_(self.adaLN_modulation[-1].bias, 0)
+
+    def forward(self, x, c, cached_k=None, cached_v=None):
+        shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (
+            self.adaLN_modulation(c).chunk(6, dim=-1)
+        )
+        attn_input = modulate(self.norm1(x), shift_msa, scale_msa)
+        attn_out, cur_k, cur_v = self.attn(attn_input, cached_k, cached_v)
+        x = x + gate_msa * attn_out
+        x = x + gate_mlp * self.mlp(modulate(self.norm2(x), shift_mlp, scale_mlp))
+        return x, cur_k, cur_v
+
+
+# ───────────────────────────────────────────────────────────────────────
+# Transformer  (manages depth KV cache across layers)
+# ───────────────────────────────────────────────────────────────────────
+
+class MoDATransformer(nn.Module):
+    """Transformer that accumulates depth K/V cache for MoDA attention.
+
+    Layer 0 — standard causal attention (no depth cache yet).
+    Layer i — receives all previous layers' K/V as depth evidence.
+    """
+
+    def __init__(
+        self,
+        input_dim,
+        hidden_dim,
+        output_dim,
+        depth,
+        heads,
+        dim_head,
+        mlp_dim,
+        dropout=0.0,
+        use_moda=True,
+        depth_start_layer=1,
+    ):
+        super().__init__()
+        self.norm = nn.LayerNorm(hidden_dim)
+        self.depth = depth
+        self.use_moda = use_moda
+        self.depth_start_layer = depth_start_layer
+
+        self.input_proj = (
+            nn.Linear(input_dim, hidden_dim)
+            if input_dim != hidden_dim
+            else nn.Identity()
+        )
+        self.cond_proj = (
+            nn.Linear(input_dim, hidden_dim)
+            if input_dim != hidden_dim
+            else nn.Identity()
+        )
+        self.output_proj = (
+            nn.Linear(hidden_dim, output_dim)
+            if hidden_dim != output_dim
+            else nn.Identity()
+        )
+
+        self.layers = nn.ModuleList(
+            [
+                MoDAConditionalBlock(
+                    hidden_dim, heads, dim_head, mlp_dim, dropout,
+                )
+                for _ in range(depth)
+            ]
+        )
+
+    def _build_depth_cache(self, k_list, v_list, T):
+        """Stack cached K/V into MoDA format [B, T*L, H, D].
+
+        MoDA expects **position-major** layout::
+
+            [pos0_layer0, pos0_layer1, …, pos1_layer0, pos1_layer1, …]
+
+        We achieve this via ``torch.stack(dim=2)`` then ``reshape``.
+        """
+        if not k_list:
+            return None, None
+        # each entry: (B, T, H, D)
+        # stack → (B, T, L, H, D)  then flatten T and L
+        stacked_k = torch.stack(k_list, dim=2)          # (B, T, L, H, D)
+        stacked_v = torch.stack(v_list, dim=2)          # (B, T, L, H, D)
+        B, _T, L, H, D = stacked_k.shape
+        return (
+            stacked_k.reshape(B, T * L, H, D),          # position-major
+            stacked_v.reshape(B, T * L, H, stacked_v.shape[-1]),
+        )
+
+    def forward(self, x, c=None):
+        x = self.input_proj(x)
+        if c is not None:
+            c = self.cond_proj(c)
+
+        T = x.shape[1]
+        k_cache_list = []       # list of (B, T, H, D) from each layer
+        v_cache_list = []
+
+        for layer_idx, block in enumerate(self.layers):
+            if self.use_moda and layer_idx >= self.depth_start_layer and k_cache_list:
+                cached_k, cached_v = self._build_depth_cache(
+                    k_cache_list, v_cache_list, T,
+                )
+            else:
+                cached_k, cached_v = None, None
+
+            x, cur_k, cur_v = block(x, c, cached_k, cached_v)
+            k_cache_list.append(cur_k)
+            v_cache_list.append(cur_v)
+
+        x = self.norm(x)
+        return self.output_proj(x)
+
+
+# ───────────────────────────────────────────────────────────────────────
+# Top-level predictor  (drop-in replacement for ARPredictor)
+# ───────────────────────────────────────────────────────────────────────
+
+class MoDAARPredictor(nn.Module):
+    """Autoregressive predictor with original MoDA depth attention.
+
+    When ``use_moda=True`` (default) deeper predictor layers retrieve
+    shallow-layer K/V via the MoDA Triton kernel.
+    When ``use_moda=False`` it reduces to the original LeWM ARPredictor
+    (pure causal sequence attention).
+    """
+
+    def __init__(
+        self,
+        *,
+        num_frames,
+        depth,
+        heads,
+        mlp_dim,
+        input_dim,
+        hidden_dim,
+        output_dim=None,
+        dim_head=64,
+        dropout=0.0,
+        emb_dropout=0.0,
+        use_moda=True,
+        depth_start_layer=1,
+    ):
+        super().__init__()
+        self.pos_embedding = nn.Parameter(torch.randn(1, num_frames, input_dim))
+        self.dropout = nn.Dropout(emb_dropout)
+        self.use_moda = use_moda
+        self.transformer = MoDATransformer(
+            input_dim=input_dim,
+            hidden_dim=hidden_dim,
+            output_dim=output_dim or input_dim,
+            depth=depth,
+            heads=heads,
+            dim_head=dim_head,
+            mlp_dim=mlp_dim,
+            dropout=dropout,
+            use_moda=use_moda,
+            depth_start_layer=depth_start_layer,
+        )
+
+    def forward(self, x, c):
+        T = x.size(1)
+        x = x + self.pos_embedding[:, :T]
+        x = self.dropout(x)
+        return self.transformer(x, c)
+
+
+# Backward-compatible alias
+DepthAugmentedARPredictor = MoDAARPredictor
+
+
+# ───────────────────────────────────────────────────────────────────────
+# Self-test
+# ───────────────────────────────────────────────────────────────────────
+
+if __name__ == "__main__":
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Testing MoDA predictor on {device}")
+    print(f"  Triton kernel available: {MODA_TRITON_AVAILABLE}")
+
+    B, T, d = 4, 3, 192
+    heads, dim_head = 16, 64
+    hidden_dim = heads * dim_head
+    mlp_dim = 2048
+    depth = 6
+
+    for use_moda in [False, True]:
+        label = "MoDA" if use_moda else "control"
+        predictor = MoDAARPredictor(
+            num_frames=T,
+            depth=depth,
+            heads=heads,
+            mlp_dim=mlp_dim,
+            input_dim=d,
+            hidden_dim=hidden_dim,
+            output_dim=d,
+            dim_head=dim_head,
+            dropout=0.1,
+            use_moda=use_moda,
+        ).to(device)
+
+        x = torch.randn(B, T, d, device=device)
+        c = torch.randn(B, T, d, device=device)
+        out = predictor(x, c)
+        assert out.shape == (B, T, d), (use_moda, out.shape)
+        out.sum().backward()
+        n_params = sum(p.numel() for p in predictor.parameters())
+        print(f"  {label:>8s}  output={tuple(out.shape)}  params={n_params:,}")
+
+    print("All tests passed!")

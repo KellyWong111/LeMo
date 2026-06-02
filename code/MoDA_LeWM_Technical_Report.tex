@@ -1,0 +1,586 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{ctex}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,shapes.geometric,fit,calc}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+}
+
+\title{\textbf{MoDA 技术报告：原理、Triton Kernel 实现细节\\与 LeWM 整合方案}}
+\author{MoDA--LeWM Integration Project}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+% =========================================================================
+\section{引言与动机}
+% =========================================================================
+
+\subsection{问题：深层 Transformer 的信息稀释}
+
+在标准 Transformer 中，第 $i$ 层的隐状态 $\mathbf{h}^{(i)}$ 只能通过残差流（residual stream）间接获取浅层信息：
+\begin{equation}
+  \mathbf{h}^{(i)} = \mathbf{h}^{(i-1)} + \text{Attn}^{(i)}(\mathbf{h}^{(i-1)}) + \text{FFN}^{(i)}(\cdots)
+\end{equation}
+经过多层叠加后，早期层的细粒度信息（例如第 2 层对某个特定 pattern 的响应）会被后续层的非线性变换逐渐覆盖和稀释。这就是所谓的\textbf{信息稀释}（information dilution）问题。
+
+对于 LeWM 这样的 world model predictor，predictor 深度可达 64 层。第 60 层想要回忆第 2 层"看到了什么"，只能从叠加了 58 层变换后的残差流中间接提取——信息损失不可避免。
+
+\subsection{MoDA 的解法：Mixture-of-Depth Attention}
+
+MoDA（Mixture-of-Depth Attention）的核心思想是：\textbf{让每一层直接"回看"前面所有层的原始 Key/Value}，而不只是依赖残差流。
+
+具体来说，对于第 $i$ 层、位置 $t$ 的 query $\mathbf{q}_t^{(i)}$，它可以 attend 到：
+\begin{enumerate}
+  \item \textbf{时间维（temporal）}：同一层的 $\mathbf{k}_0^{(i)}, \mathbf{k}_1^{(i)}, \ldots, \mathbf{k}_t^{(i)}$（因果约束）
+  \item \textbf{深度维（depth）}：前面所有层在\emph{同一位置 $t$} 的 $\mathbf{k}_t^{(0)}, \mathbf{k}_t^{(1)}, \ldots, \mathbf{k}_t^{(i-1)}$
+\end{enumerate}
+
+而且这两组候选\textbf{在同一个 softmax 里竞争}——网络自己学习什么时候该看时间历史、什么时候该看浅层记忆。
+
+% =========================================================================
+\section{MoDA 核心数学}
+% =========================================================================
+
+\subsection{符号定义}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cl}
+\toprule
+符号 & 含义 \\
+\midrule
+$B$ & batch size \\
+$T$ & 序列长度（时间步数） \\
+$L$ & 当前层之前已缓存的层数（depth cache 的层数） \\
+$H$ & attention head 数 \\
+$D$ & 每个 head 的维度（dim\_head） \\
+$\mathbf{q}, \mathbf{k}, \mathbf{v} \in \mathbb{R}^{B \times T \times H \times D}$ & 当前层的 Query, Key, Value \\
+$\mathbf{k}_d, \mathbf{v}_d \in \mathbb{R}^{B \times (T \cdot L) \times H \times D}$ & depth cache（前层 Key/Value） \\
+$s$ & scale factor $= 1/\sqrt{D}$ \\
+\bottomrule
+\end{tabular}
+\caption{MoDA 符号表}
+\end{table}
+
+\subsection{Unified Softmax Attention}
+
+对于 batch $b$、head $h$、query 位置 $t$，MoDA 的计算过程如下：
+
+\paragraph{Step 1: 时间维 logits（causal）}
+\begin{equation}
+  \ell_{\text{seq}}[j] = \frac{\mathbf{q}_t \cdot \mathbf{k}_j}{\sqrt{D}}, \quad j = 0, 1, \ldots, t
+  \label{eq:logits_seq}
+\end{equation}
+共 $(t+1)$ 个 logits。因果约束自然满足——只 attend 到 $j \leq t$。
+
+\paragraph{Step 2: 深度维 logits}
+\begin{equation}
+  \ell_{\text{depth}}[l] = \frac{\mathbf{q}_t \cdot \mathbf{k}_{d}[t, l]}{\sqrt{D}}, \quad l = 0, 1, \ldots, L-1
+  \label{eq:logits_depth}
+\end{equation}
+共 $L$ 个 logits。注意这里 $\mathbf{k}_{d}[t, l]$ 是第 $l$ 层在\emph{同一位置 $t$} 产生的 Key。
+
+\paragraph{Step 3: Unified Softmax}
+将两组 logits 拼接后做\emph{一次} softmax：
+\begin{equation}
+  \boldsymbol{\ell} = \text{concat}(\ell_{\text{seq}},\; \ell_{\text{depth}}) \in \mathbb{R}^{(t+1+L)}
+\end{equation}
+\begin{equation}
+  \mathbf{w} = \text{softmax}(\boldsymbol{\ell}) \in \mathbb{R}^{(t+1+L)}
+  \label{eq:unified_softmax}
+\end{equation}
+
+\paragraph{Step 4: 加权求和}
+\begin{equation}
+  \mathbf{o}_t = \underbrace{\sum_{j=0}^{t} w_j \cdot \mathbf{v}_j}_{\text{temporal context}} + \underbrace{\sum_{l=0}^{L-1} w_{t+1+l} \cdot \mathbf{v}_{d}[t, l]}_{\text{depth context}}
+  \label{eq:output}
+\end{equation}
+
+\subsection{为什么要 Unified Softmax？}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+方案 & 做法 & 特点 \\
+\midrule
+独立 attention & 分别对时间和深度做两个 softmax，再加权 & 需要额外混合参数 \\
+加法融合 & 分别算 output 再相加 & 无竞争，信息冗余 \\
+\textbf{Unified softmax (MoDA)} & 拼接后做一个 softmax & \textbf{自动竞争，零额外参数} \\
+\bottomrule
+\end{tabular}
+\caption{三种深度融合方案对比}
+\end{table}
+
+Unified softmax 的核心优势：由于 softmax 的归一化性质 $\sum w_i = 1$，时间和深度的权重\textbf{自动此消彼长}。如果某个 depth key 特别相关，它的 score 高，softmax 就会给它更多权重，同时自动压低时间维的权重。\textbf{不需要任何额外参数来控制混合比例。}
+
+\subsection{LogSumExp (LSE) 的作用}
+
+在 Triton kernel 的实现中，除了输出 $\mathbf{o}$ 之外，还会计算 LSE：
+\begin{equation}
+  \text{LSE}_t = \log \sum_{i} \exp(\ell_i)
+\end{equation}
+LSE 在 backward pass 中用于高效重建 softmax 权重 $w_i = \exp(\ell_i - \text{LSE})$，避免重新计算完整的 softmax。这是 Flash Attention 系列 kernel 的标准技巧。
+
+% =========================================================================
+\section{Depth Cache：构建与布局}
+% =========================================================================
+
+\subsection{逐层累积}
+
+Depth cache 在 Transformer 的 forward pass 中逐层构建：
+
+\begin{algorithm}[H]
+\caption{Depth Cache 累积过程}
+\begin{algorithmic}[1]
+\State $\texttt{k\_cache\_list} \gets []$, $\texttt{v\_cache\_list} \gets []$
+\For{$i = 0$ \textbf{to} $\text{depth}-1$}
+  \If{$i \geq \texttt{depth\_start\_layer}$ \textbf{and} $\texttt{k\_cache\_list} \neq \emptyset$}
+    \State $\mathbf{k}_d, \mathbf{v}_d \gets \texttt{build\_depth\_cache}(\texttt{k\_cache\_list}, \texttt{v\_cache\_list}, T)$
+  \Else
+    \State $\mathbf{k}_d, \mathbf{v}_d \gets \text{None}$
+  \EndIf
+  \State $\mathbf{h}^{(i)}, \mathbf{k}^{(i)}, \mathbf{v}^{(i)} \gets \texttt{MoDABlock}_i(\mathbf{h}^{(i-1)}, \mathbf{k}_d, \mathbf{v}_d)$
+  \State $\texttt{k\_cache\_list}.\text{append}(\mathbf{k}^{(i)})$
+  \State $\texttt{v\_cache\_list}.\text{append}(\mathbf{v}^{(i)})$
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\begin{itemize}
+  \item \textbf{Layer 0}：没有前层，$\mathbf{k}_d = \text{None}$ → 退化为纯 causal attention
+  \item \textbf{Layer $i$ ($i \geq 1$)}：拿到 layers $0, 1, \ldots, i-1$ 的所有 K/V → $L = i$
+  \item \textbf{Layer 63}：depth cache 包含 63 层的 K/V，$L = 63$
+\end{itemize}
+
+\subsection{Position-Major 布局}
+
+MoDA kernel 要求 depth cache 按\textbf{position-major} 排列：
+
+\begin{equation}
+  \mathbf{k}_d = [\underbrace{k_0^{(0)}, k_0^{(1)}, \ldots, k_0^{(L-1)}}_{\text{position 0 的所有层}},\; \underbrace{k_1^{(0)}, k_1^{(1)}, \ldots, k_1^{(L-1)}}_{\text{position 1 的所有层}},\; \ldots]
+\end{equation}
+
+最终 shape: $[B, T \times L, H, D]$。
+
+\paragraph{为什么用 position-major？} Triton kernel 在处理 query 位置 $t$ 时，需要读取该位置所有层的 depth K/V。Position-major 布局保证这些数据在内存中连续，最大化 GPU 的内存带宽利用率。
+
+\paragraph{构建代码对应：}
+\begin{lstlisting}
+# k_list: list of (B, T, H, D), length L
+stacked_k = torch.stack(k_list, dim=2)  # (B, T, L, H, D)
+cached_k = stacked_k.reshape(B, T*L, H, D)  # position-major
+\end{lstlisting}
+
+\texttt{torch.stack(dim=2)} 把 layer 维度插在 $T$ 和 $H$ 之间，然后 \texttt{reshape} 把 $T$ 和 $L$ 两个维度展平。由于 PyTorch 的 row-major 内存布局，展平后自然是 position-major：先遍历 $L$（内层循环），再遍历 $T$（外层循环）。
+
+% =========================================================================
+\section{Triton Kernel 详解}
+% =========================================================================
+
+Triton 是 OpenAI 开发的 GPU 编程语言，允许用 Python 风格的代码编写高性能 GPU kernel。MoDA 的 Triton kernel 实现了 Flash Attention 风格的 tiled attention，同时融合了 depth cache 的处理。
+
+\subsection{什么是 Triton？}
+
+\begin{itemize}
+  \item \textbf{定位}：介于 CUDA 和 PyTorch 之间的抽象层。比 CUDA 易写，比 PyTorch 的 \texttt{torch.nn.functional} 更底层、更灵活。
+  \item \textbf{核心概念}：程序员定义一个 kernel 函数，该函数在 GPU 的多个\textbf{程序实例}（program instances）上并行执行。每个实例处理输出的一个 tile（小块）。
+  \item \textbf{优势}：自动处理 GPU 的 shared memory、warp 调度等底层细节，同时提供接近手写 CUDA 的性能。
+\end{itemize}
+
+\subsection{Forward Kernel 架构}
+
+MoDA forward kernel (\texttt{parallel\_moda\_fwd\_kernel}) 的并行策略：
+
+\begin{equation}
+  \text{grid} = (\underbrace{N_V}_{\text{value 分块数}},\; \underbrace{N_T}_{\text{query 时间分块数}},\; \underbrace{B \times H_Q}_{\text{batch} \times \text{head}})
+\end{equation}
+
+每个 kernel 实例负责计算输出的一个 $[\text{BT}, \text{BV}]$ 大小的 tile。
+
+\paragraph{关键常量（tile sizes）：}
+\begin{table}[h]
+\centering
+\begin{tabular}{cll}
+\toprule
+符号 & 含义 & 典型值 \\
+\midrule
+\texttt{BT} & query block size（时间维分块） & 64--128 \\
+\texttt{BS} & key block size（扫描步长） & 32--64 \\
+\texttt{BK} & key dimension block & 64--256 \\
+\texttt{BV} & value dimension block & 64--256 \\
+\bottomrule
+\end{tabular}
+\caption{Triton kernel tile 参数}
+\end{table}
+
+\subsection{Forward Kernel 的三阶段计算}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  block/.style={draw, rounded corners, fill=blue!10, minimum width=5.5cm, minimum height=1.2cm, align=center},
+  arrow/.style={-{Stealth[length=3mm]}, thick},
+  node distance=1.5cm
+]
+\node[block] (s1) {\textbf{Stage 1: Full Causal Blocks}\\扫描 $k[0 \ldots \text{base\_t\_block\_start})$\\所有 key 都满足因果性};
+\node[block, below=of s1] (s2) {\textbf{Stage 2: Partial Causal Block}\\扫描 $k[\text{base\_t\_block\_start} \ldots \text{base\_t\_block\_end})$\\需要逐元素因果 mask};
+\node[block, below=of s2] (s3) {\textbf{Stage 3: Depth Blocks}\\扫描 $k_d[\text{depth\_block\_start} \ldots \text{depth\_block\_end})$\\需要 position-match mask};
+\draw[arrow] (s1) -- (s2);
+\draw[arrow] (s2) -- (s3);
+\end{tikzpicture}
+\caption{Forward kernel 的三阶段处理流程}
+\end{figure}
+
+\subsubsection{Stage 1: Full Causal Blocks（完全因果区域）}
+
+对应源码第 174--220 行。
+
+对于 query block 起始位置 \texttt{q\_block\_start}，所有 key 位置 $j < \text{base\_t\_block\_start}$ 必然满足因果条件 $j \leq t$，因此\textbf{不需要逐元素 mask}。
+
+\begin{lstlisting}[title=Stage 1 核心逻辑（伪代码）]
+for i_s in range(0, base_t_block_start, BS):
+    b_k = load_block(k, i_s)        # (BK, BS)
+    b_v = load_block(v, i_s)        # (BS, BV)
+    b_s = dot(b_q, b_k) * scale     # (BT, BS) attention scores
+    # Online softmax update (Flash Attention style):
+    b_m_new = max(b_m, max(b_s))    # running max
+    b_r = exp2(b_m_old - b_m_new)   # rescale factor
+    b_p = exp2(b_s - b_m_new)       # new weights
+    b_acc = b_acc * b_r + sum(b_p)  # running sum
+    b_o = b_o * b_r + dot(b_p, b_v) # running output
+\end{lstlisting}
+
+\subsubsection{Stage 2: Partial Causal Block（边界因果区域）}
+
+对应源码第 225--267 行。
+
+当 key 位置和 query 位置在同一个 block 范围内时，需要逐元素检查因果条件：
+\begin{equation}
+  \text{mask}[i, j] = \left(\lfloor \texttt{o\_q}[i] / G \rfloor \geq \texttt{o\_k}[j]\right)
+\end{equation}
+其中 $G$ = \texttt{moda\_group\_num}。不满足条件的位置设为 $-\infty$。
+
+\subsubsection{Stage 3: Depth Blocks（深度缓存区域）}
+
+对应源码第 269--337 行。这是 MoDA 的核心创新。
+
+\begin{lstlisting}[title=Stage 3 核心逻辑（伪代码）]
+for depth_col_start in range(depth_block_start, depth_block_end, BS):
+    b_k_depth = load_block(cached_k, depth_col_start)
+    b_v_depth = load_block(cached_v, depth_col_start)
+    b_s_depth = dot(b_q, b_k_depth) * scale
+
+    # Position-match mask:
+    depth_col_ids = depth_col_start + arange(BS)
+    depth_row_ids = depth_col_ids // L    # which position
+    mask = (query_position == depth_row_ids)  # same position only!
+    b_s_depth = where(mask, b_s_depth, -inf)
+
+    # Continue online softmax (shared with Stage 1 & 2):
+    b_m_new = max(b_m, max(b_s_depth))
+    b_r = exp2(b_m - b_m_new)
+    b_p = exp2(b_s_depth - b_m_new)
+    b_acc = b_acc * b_r + sum(b_p)
+    b_o = b_o * b_r + dot(b_p, b_v_depth)
+\end{lstlisting}
+
+\paragraph{关键 mask 逻辑：}
+\begin{equation}
+  \texttt{depth\_row\_ids} = \lfloor \texttt{depth\_col\_ids} / L \rfloor
+\end{equation}
+这利用了 position-major 布局：在 $\mathbf{k}_d$ 的线性索引中，连续的 $L$ 个元素属于同一个位置。因此 $\lfloor \text{index} / L \rfloor$ 就是对应的时间位置。只有 query 位置和 depth key 位置匹配时，attention 才有效。
+
+\paragraph{Online Softmax 的统一性：}
+三个 stage 共享同一组 running statistics ($\texttt{b\_m}$, $\texttt{b\_acc}$, $\texttt{b\_o}$)。这意味着 temporal scores 和 depth scores \textbf{在同一个 softmax 归一化下}竞争——这正是 MoDA "unified softmax" 的实现方式。
+
+最终归一化：
+\begin{equation}
+  \texttt{b\_o} = \texttt{b\_o} / \texttt{b\_acc}
+\end{equation}
+
+\subsection{Online Softmax（Flash Attention 技巧）}
+
+标准 softmax 需要两遍扫描（第一遍求 max，第二遍求 exp/sum），这对 GPU 不友好。Online softmax 用一遍扫描完成，核心是维护三个 running statistics：
+
+\begin{align}
+  m_{\text{new}} &= \max(m_{\text{old}}, \max(\mathbf{s}_{\text{new}})) \label{eq:online_m} \\
+  r &= 2^{m_{\text{old}} - m_{\text{new}}} \quad \text{（rescale factor）} \label{eq:online_r} \\
+  \text{acc}_{\text{new}} &= \text{acc}_{\text{old}} \cdot r + \sum_j 2^{s_j - m_{\text{new}}} \label{eq:online_acc} \\
+  \mathbf{o}_{\text{new}} &= \mathbf{o}_{\text{old}} \cdot r + \sum_j 2^{s_j - m_{\text{new}}} \cdot \mathbf{v}_j \label{eq:online_o}
+\end{align}
+
+注意这里用的是 $2^x$（\texttt{exp2}）而不是 $e^x$，因此 scores 预乘了 $1/\ln 2$（即 \texttt{RCP\_LN2 = 1.4427}）。这是因为 GPU 硬件上 $2^x$ 比 $e^x$ 快。
+
+\subsection{Backward Kernel 架构}
+
+Backward pass 分为\textbf{四个独立 kernel}：
+
+\begin{enumerate}
+  \item \texttt{parallel\_moda\_bwd\_kernel\_preprocess}：计算 $\delta = \sum_d o_d \cdot do_d$（逐元素 dot product）
+  \item \texttt{parallel\_moda\_bwd\_kernel\_dq}：计算 $\frac{\partial \mathcal{L}}{\partial \mathbf{q}}$，包含时间维和深度维
+  \item \texttt{parallel\_attn\_bwd\_kernel\_dkv}：计算时间维的 $\frac{\partial \mathcal{L}}{\partial \mathbf{k}}$, $\frac{\partial \mathcal{L}}{\partial \mathbf{v}}$
+  \item \texttt{parallel\_attn\_bwd\_kernel\_dkv\_depth}：计算深度维的 $\frac{\partial \mathcal{L}}{\partial \mathbf{k}_d}$, $\frac{\partial \mathcal{L}}{\partial \mathbf{v}_d}$
+\end{enumerate}
+
+\subsubsection{Backward 的核心公式}
+
+利用前向保存的 LSE，后向可以高效重建 softmax 权重：
+\begin{equation}
+  p_{ij} = 2^{s_{ij} - \text{LSE}_i}
+\end{equation}
+
+然后梯度计算：
+\begin{align}
+  dp_{ij} &= \mathbf{do}_i \cdot \mathbf{v}_j \\
+  ds_{ij} &= p_{ij} \cdot (dp_{ij} - \delta_i) \quad \text{where } \delta_i = \sum_j p_{ij} \cdot dp_{ij} = \mathbf{o}_i \cdot \mathbf{do}_i \\
+  d\mathbf{q}_i &= \sum_j ds_{ij} \cdot \mathbf{k}_j \cdot s \\
+  d\mathbf{k}_j &= \sum_i ds_{ij} \cdot \mathbf{q}_i \cdot s \\
+  d\mathbf{v}_j &= \sum_i p_{ij} \cdot \mathbf{do}_i
+\end{align}
+
+对于 depth cache 的梯度 $d\mathbf{k}_d$, $d\mathbf{v}_d$，计算方式完全类似，只是 mask 从因果 mask 变为 position-match mask。
+
+\subsection{GPU 适配与 Tile 参数}
+
+Kernel 会根据 GPU 型号选择不同的 tile 参数：
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccccl}
+\toprule
+GPU & BT & BS & BK & BV & warps \\
+\midrule
+H800 (Hopper) & 64 & 64 & 64 & 64 & 4 \\
+H20 & 64 & 64 & 64 & 64 & 4 \\
+A100 (Ampere) & 64 & 64 & 64 & 64 & 4 \\
+\textbf{其他（如 RTX 6000 Ada）} & 128 & 32 & 256 & 64 & 2 \\
+\bottomrule
+\end{tabular}
+\caption{不同 GPU 的 forward kernel tile 参数}
+\end{table}
+
+RTX 6000 Ada 不在优化列表中，使用 fallback 参数。\texttt{Target GPU is not optimized} 的 warning 来自这里。\textbf{数学上完全正确}，只是 tile 大小不是针对该 GPU 手动调优的。
+
+\subsection{autograd 整合}
+
+MoDA 通过 PyTorch 的 \texttt{torch.autograd.Function} 将 Triton kernel 接入自动微分系统：
+
+\begin{lstlisting}[title=autograd 接口（简化）]
+class ParallelMoDAFunction(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, q, k, v, cached_k, cached_v, scale, ...):
+        o, lse = parallel_moda_fwd(q, k, v, ...)
+        ctx.save_for_backward(q, k, v, o, lse, cached_k, cached_v)
+        return o
+
+    @staticmethod
+    def backward(ctx, do):
+        q, k, v, o, lse, cached_k, cached_v = ctx.saved_tensors
+        dq, dk, dv, _, d_cached_k, d_cached_v = parallel_moda_bwd(
+            q, k, v, o, ..., do, cached_k=cached_k, cached_v=cached_v
+        )
+        return dq, dk, dv, d_cached_k, d_cached_v, None, ...
+\end{lstlisting}
+
+forward 保存 $\mathbf{o}$ 和 LSE（而不是完整的 attention weights），backward 利用 LSE 重建权重。这是 Flash Attention 的核心 memory saving 技巧。
+
+% =========================================================================
+\section{MoDA 额外特性}
+% =========================================================================
+
+\subsection{moda\_group\_num}
+
+当 \texttt{moda\_group\_num} $= G > 1$ 时，连续 $G$ 个 query token 共享同一个 base 位置：
+\begin{equation}
+  \text{base\_t} = \lfloor t_q / G \rfloor
+\end{equation}
+
+这允许多个 query 映射到同一个"物理时间步"的 depth cache。LeWM 中 $T=3$，不需要此特性，固定 $G=1$。
+
+\subsection{Gate $g$（cumsum gate）}
+
+MoDA 支持可选的位置衰减 gate $g$。启用时，attention score 会加上一个 cumulative sum bias：
+\begin{equation}
+  s'_{ij} = s_{ij} + g_{\text{cumsum}}[i] - g_{\text{cumsum}}[j]
+\end{equation}
+这给远距离的 key 施加衰减。LeWM 不使用此特性（$g = \text{None}$）。
+
+\subsection{GQA（Grouped-Query Attention）}
+
+MoDA 支持 $H_Q \neq H$（多个 query head 共享同一组 K/V head）。LeWM 使用 $H_Q = H = 16$，不涉及 GQA。
+
+% =========================================================================
+\section{LeWM 整合方案}
+% =========================================================================
+
+\subsection{架构对比}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  block/.style={draw, rounded corners, fill=green!10, minimum width=4cm, minimum height=0.8cm, align=center, font=\small},
+  moda/.style={draw, rounded corners, fill=orange!20, minimum width=4cm, minimum height=0.8cm, align=center, font=\small},
+  arrow/.style={-{Stealth[length=2mm]}, thick},
+  node distance=0.8cm
+]
+% Left: Original LeWM
+\node[font=\bfseries] at (-3, 5) {原版 LeWM};
+\node[block] (l1) at (-3, 4) {AdaLN-zero 调制};
+\node[block] (l2) at (-3, 3) {标准 Causal Attn};
+\node[block] (l3) at (-3, 2) {FFN};
+\node[block] (l4) at (-3, 1) {残差连接};
+\draw[arrow] (l1) -- (l2);
+\draw[arrow] (l2) -- (l3);
+\draw[arrow] (l3) -- (l4);
+
+% Right: MoDA LeWM
+\node[font=\bfseries] at (3, 5) {MoDA 版 LeWM};
+\node[block] (r1) at (3, 4) {AdaLN-zero 调制};
+\node[moda] (r2) at (3, 3) {\textbf{MoDA Unified Attn}};
+\node[block] (r3) at (3, 2) {FFN};
+\node[block] (r4) at (3, 1) {残差连接};
+\draw[arrow] (r1) -- (r2);
+\draw[arrow] (r2) -- (r3);
+\draw[arrow] (r3) -- (r4);
+
+% Arrow between
+\draw[-{Stealth[length=3mm]}, ultra thick, red] (l2) -- node[above, font=\small\bfseries, red] {唯一改动} (r2);
+\end{tikzpicture}
+\caption{原版 LeWM 与 MoDA 版的唯一区别：attention 模块}
+\end{figure}
+
+\subsection{保留的 LeWM 组件}
+
+\begin{itemize}
+  \item \textbf{AdaLN-zero 调制}：$\text{modulate}(\mathbf{x}, \text{shift}, \text{scale}) = \mathbf{x} \cdot (1 + \text{scale}) + \text{shift}$，action embedding 通过 6 路 AdaLN 调制 attention 和 FFN
+  \item \textbf{ViT-tiny encoder}：hidden\_size=192, 12 层, 3 heads
+  \item \textbf{SIGReg loss}：$\mathcal{L} = \mathcal{L}_{\text{pred}} + \lambda \cdot \mathcal{L}_{\text{sigreg}}$
+  \item \textbf{Learnable positional embedding}（而非 MoDA 原版的 RoPE）
+  \item \textbf{无 QK Norm}（MoDA 原版有）
+\end{itemize}
+
+\subsection{MoDA 版 LeWM 的 Attention 流程}
+
+\begin{algorithm}[H]
+\caption{MoDAAttention.forward()}
+\begin{algorithmic}[1]
+\Require $\mathbf{x} \in \mathbb{R}^{B \times T \times D}$（经 AdaLN-zero 调制后）, $\mathbf{k}_d$, $\mathbf{v}_d$（depth cache 或 None）
+\State $\mathbf{x}_{\text{normed}} \gets \text{LayerNorm}(\mathbf{x})$
+\State $\mathbf{q}, \mathbf{k}, \mathbf{v} \gets \text{split}(\text{Linear}(\mathbf{x}_{\text{normed}}))$ \Comment{各 $\in \mathbb{R}^{B \times T \times H \times D}$}
+\State $\mathbf{o} \gets \texttt{parallel\_moda}(\mathbf{q}, \mathbf{k}, \mathbf{v}, \text{cached\_k}=\mathbf{k}_d, \text{cached\_v}=\mathbf{v}_d, \text{scale}=1/\sqrt{D})$
+\State $\mathbf{o} \gets \text{Linear}(\text{reshape}(\mathbf{o}))$
+\State \Return $\mathbf{o}$, $\mathbf{k}$, $\mathbf{v}$ \Comment{$\mathbf{k}, \mathbf{v}$ 存入 depth cache}
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{配置参数}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+参数 & 值 \\
+\midrule
+\texttt{use\_moda} & \texttt{true} \\
+\texttt{depth\_start\_layer} & 1（第 0 层无 depth cache） \\
+\texttt{predictor.depth} & 64 \\
+\texttt{predictor.heads} & 16 \\
+\texttt{predictor.dim\_head} & 64 \\
+\texttt{predictor.mlp\_dim} & 2048 \\
+\texttt{wm.history\_size} & 3（序列长度 $T=3$） \\
+\texttt{trainer.precision} & bf16 \\
+\bottomrule
+\end{tabular}
+\caption{LeWM MoDA 实验默认配置}
+\end{table}
+
+% =========================================================================
+\section{实现一致性验证}
+% =========================================================================
+
+\subsection{三层验证体系}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{llc}
+\toprule
+验证项 & 方法 & 结果 \\
+\midrule
+LeWM wrapper $=$ 官方 kernel（有 depth） & \texttt{wrapped - direct = 0} & max\_abs $= 0.0$ \\
+LeWM wrapper $=$ 官方 kernel（无 depth） & \texttt{wrapped - direct = 0} & max\_abs $= 0.0$ \\
+官方 kernel $\approx$ 官方 naive reference & bf16 kernel 容差内 & max\_abs $< 0.01$ \\
+\bottomrule
+\end{tabular}
+\caption{数值正确性验证结果}
+\end{table}
+
+第三项的误差来自 bf16 精度下 Triton kernel 的 tiled 计算与 Python for-loop 的 fp32 参考实现之间的数值差异，属于 kernel 正常容差范围。
+
+\subsection{与原版 MoDA 的逐项对比}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{p{2.8cm}p{4cm}p{4cm}c}
+\toprule
+维度 & MoDA 原版 & 当前 LeWM 实现 & 一致性 \\
+\midrule
+核心数学 & unified softmax over [seq, depth] & 直接调用官方 \texttt{parallel\_moda} & \checkmark \\
+depth cache 格式 & $[B, T{\cdot}L, H, D]$ position-major & \texttt{stack(dim=2).reshape} & \checkmark \\
+depth cache 来源 & 前面所有层的 K/V & \texttt{k\_cache\_list} 累积 & \checkmark \\
+depth 开始层 & 第 1 层开始 & \texttt{depth\_start\_layer=1} & \checkmark \\
+causal masking & kernel 内部实现 & 直接走官方 kernel & \checkmark \\
+scale & $1/\sqrt{D}$ & \texttt{dim\_head**-0.5} & \checkmark \\
+Triton 加速 & 官方 \texttt{parallel\_moda} & 同一份代码 & \checkmark \\
+\midrule
+\texttt{moda\_group\_num} & 支持 $>1$ & 固定 $=1$ & 简化 \\
+gate $g$ & 支持 cumsum gate & 固定 None & 简化 \\
+GQA & 支持 $H_Q \neq H$ & $H_Q = H$ & 简化 \\
+Transformer block & LLaMA-like & AdaLN-zero (LeWM) & 刻意保留 \\
+位置编码 & RoPE & learnable & 刻意保留 \\
+QK Norm & 有 & 无 & 刻意保留 \\
+\bottomrule
+\end{tabular}
+\caption{完整对比表}
+\end{table}
+
+% =========================================================================
+\section{总结}
+% =========================================================================
+
+\begin{enumerate}
+  \item \textbf{MoDA 的核心}是 unified softmax——让时间维和深度维的 K/V 在同一个 softmax 里竞争，网络自动学习注意力分配。
+  \item \textbf{Triton kernel} 实现了 Flash Attention 风格的 tiled online softmax，分三阶段处理：完全因果块 → 边界因果块 → 深度缓存块。三个阶段共享 running statistics，实现 unified softmax。
+  \item \textbf{Depth cache} 按 position-major 布局，保证 GPU 内存访问连续。
+  \item \textbf{Backward} 分四个 kernel：预处理 $\delta$、计算 $d\mathbf{q}$、计算时间维 $d\mathbf{k}/d\mathbf{v}$、计算深度维 $d\mathbf{k}_d/d\mathbf{v}_d$。利用 LSE 重建 softmax 权重，避免保存完整 attention matrix。
+  \item \textbf{LeWM 整合}只替换了 attention 模块（标准 causal → MoDA unified），其他全部保留，确保实验结果可归因于 depth attention 机制。
+\end{enumerate}
+
+\end{document}
