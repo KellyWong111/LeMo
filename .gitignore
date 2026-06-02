@@ -22,6 +22,26 @@ artifacts/wm_runs/**
 !artifacts/wm_runs/cost_calibration_head_n100_20260529/**
 !artifacts/wm_runs/pa_moda_action_conditioned_gate/
 !artifacts/wm_runs/pa_moda_action_conditioned_gate/**
+!artifacts/wm_runs/stateroll_normalbudget_candidate_pool_s300_steps30_n100/
+!artifacts/wm_runs/stateroll_normalbudget_candidate_pool_s300_steps30_n100/**
+!artifacts/wm_runs/bsl_normalbudget_candidate_pool_s300_steps30_n100/
+!artifacts/wm_runs/bsl_normalbudget_candidate_pool_s300_steps30_n100/**
+!artifacts/wm_runs/stateroll_normalbudget_candidate_pool_s300_steps30_n50/
+!artifacts/wm_runs/stateroll_normalbudget_candidate_pool_s300_steps30_n50/**
+!artifacts/wm_runs/bsl_normalbudget_candidate_pool_s300_steps30_n50/
+!artifacts/wm_runs/bsl_normalbudget_candidate_pool_s300_steps30_n50/**
+!artifacts/wm_runs/rpn_residual_proposal/
+!artifacts/wm_runs/rpn_residual_proposal/**
+!artifacts/wm_runs/opportunity_conditioned_moda_residual_n100_20260528/
+!artifacts/wm_runs/opportunity_conditioned_moda_residual_n100_20260528/**
+!artifacts/wm_runs/worldmodel_pga_mixedpool_20260518/
+!artifacts/wm_runs/worldmodel_pga_mixedpool_20260518/**
+!artifacts/wm_runs/worldmodel_pga_ablation_20260517/
+!artifacts/wm_runs/worldmodel_pga_ablation_20260517/**
+!artifacts/wm_runs/worldmodel_planning_geometry_alignment/
+!artifacts/wm_runs/worldmodel_planning_geometry_alignment/**
+!artifacts/wm_runs/worldmodel_planning_geometry_alignment_smoke_evalmode/
+!artifacts/wm_runs/worldmodel_planning_geometry_alignment_smoke_evalmode/**
 
 # Large local bundles
 lewm_migration_bundle/

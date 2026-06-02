@@ -1,0 +1,50 @@
+[
+  {
+    "variant": "vf05_mix20",
+    "alpha": 0.25,
+    "episodes": 40,
+    "original_top1": 45.0,
+    "corrected_top1": 52.5,
+    "oracle": 80.0,
+    "net_gain": 7.5,
+    "fixed_wrong": 3,
+    "harmed_correct": 0,
+    "epoch": 2
+  },
+  {
+    "variant": "vf05_mix20",
+    "alpha": 0.5,
+    "episodes": 40,
+    "original_top1": 45.0,
+    "corrected_top1": 50.0,
+    "oracle": 80.0,
+    "net_gain": 5.0,
+    "fixed_wrong": 2,
+    "harmed_correct": 0,
+    "epoch": 2
+  },
+  {
+    "variant": "vf05_mix20",
+    "alpha": 0.75,
+    "episodes": 40,
+    "original_top1": 45.0,
+    "corrected_top1": 42.5,
+    "oracle": 80.0,
+    "net_gain": -2.5,
+    "fixed_wrong": 3,
+    "harmed_correct": 4,
+    "epoch": 2
+  },
+  {
+    "variant": "vf05_mix20",
+    "alpha": 1.0,
+    "episodes": 40,
+    "original_top1": 45.0,
+    "corrected_top1": 37.5,
+    "oracle": 80.0,
+    "net_gain": -7.5,
+    "fixed_wrong": 2,
+    "harmed_correct": 5,
+    "epoch": 2
+  }
+]

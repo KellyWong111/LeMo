@@ -1,0 +1,5 @@
+artifacts/wm_runs/**/*.ckpt filter=lfs diff=lfs merge=lfs -text
+artifacts/wm_runs/**/*.pth filter=lfs diff=lfs merge=lfs -text
+artifacts/wm_runs/**/*.npz filter=lfs diff=lfs merge=lfs -text
+artifacts/wm_runs/**/*.npy filter=lfs diff=lfs merge=lfs -text
+artifacts/wm_runs/**/*.pt filter=lfs diff=lfs merge=lfs -text

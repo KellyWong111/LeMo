@@ -1,0 +1,50 @@
+[
+  {
+    "variant": "vf05_mix20",
+    "seed": 46,
+    "top1": 57.99999999999999,
+    "oracle": 84.0,
+    "actions_shape": [
+      50,
+      30,
+      4,
+      10
+    ],
+    "pred_shape": [
+      50,
+      30,
+      5,
+      192
+    ],
+    "goal_shape": [
+      50,
+      30,
+      1,
+      192
+    ]
+  },
+  {
+    "variant": "vf05_mix20",
+    "seed": 47,
+    "top1": 52.0,
+    "oracle": 72.0,
+    "actions_shape": [
+      50,
+      30,
+      4,
+      10
+    ],
+    "pred_shape": [
+      50,
+      30,
+      5,
+      192
+    ],
+    "goal_shape": [
+      50,
+      30,
+      1,
+      192
+    ]
+  }
+]
